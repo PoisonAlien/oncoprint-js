@@ -2,7 +2,6 @@
 
 <div align="center">
 
-[![npm version](https://badge.fury.io/js/oncoprint-js.svg)](https://badge.fury.io/js/oncoprint-js)
 [![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-%230074c1.svg)](http://www.typescriptlang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Build Status](https://img.shields.io/github/workflow/status/poisonalien/oncoprint-js/CI)](https://github.com/poisonalien/oncoprint-js/actions)
@@ -379,10 +378,7 @@ Oncoprint.js: A JavaScript library for interactive oncology data visualization
 ```
 
 ## Support
-
-- [Documentation](https://github.com/poisonalien/oncoprint-js/wiki)
 - [Issue Tracker](https://github.com/poisonalien/oncoprint-js/issues)
-- [Discussions](https://github.com/poisonalien/oncoprint-js/discussions)
 
 ## Quick Links
 
