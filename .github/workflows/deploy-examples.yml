@@ -1,0 +1,40 @@
+name: Deploy Examples
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Use Node.js 18.x
+      uses: actions/setup-node@v4
+      with:
+        node-version: 18.x
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build library
+      run: npm run build
+
+    - name: Prepare examples for deployment
+      run: |
+        mkdir -p deploy
+        cp -r examples/* deploy/
+        cp -r dist deploy/
+        # Update paths in HTML files to use local dist
+        sed -i 's|../dist/|./|g' deploy/*.html
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./deploy
+        cname: poisonalien.github.io

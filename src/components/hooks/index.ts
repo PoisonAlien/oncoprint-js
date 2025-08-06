@@ -1,0 +1,1 @@
+export { useOncoprint, type UseOncoprintOptions, type UseOncoprintReturn } from './useOncoprint';

@@ -1,0 +1,1736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oncoprint.js Configuration Studio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #f5f5f5;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* PowerPoint-style layout */
+        .app-container {
+            display: grid;
+            grid-template-areas: 
+                "header header header"
+                "sidebar content rightbar";
+            grid-template-rows: 60px 1fr;
+            grid-template-columns: 300px 1fr 280px;
+            height: 100vh;
+        }
+
+        /* Header bar */
+        .header {
+            grid-area: header;
+            background: #2c3e50;
+            color: white;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .header-controls {
+            margin-left: auto;
+            display: flex;
+            gap: 10px;
+        }
+
+        .header-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .header-btn:hover {
+            background: #2980b9;
+        }
+
+        .header-btn.export {
+            background: #27ae60;
+        }
+
+        .header-btn.export:hover {
+            background: #219a52;
+        }
+
+        /* Left sidebar */
+        .sidebar {
+            grid-area: sidebar;
+            background: white;
+            border-right: 1px solid #ddd;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        /* Main content area */
+        .content {
+            grid-area: content;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+        }
+
+        /* Right sidebar */
+        .rightbar {
+            grid-area: rightbar;
+            background: white;
+            border-left: 1px solid #ddd;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        /* Oncoprint container */
+        #oncoprint-container {
+            width: calc(100% - 40px); /* Account for content padding */
+            height: calc(100% - 80px); /* Account for content padding and status bar */
+            max-width: 100%;
+            max-height: 100%;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+            min-height: 400px;
+            flex: 1;
+            overflow: auto; /* Allow scrolling to see full visualization */
+        }
+        
+        /* Ensure SVG inside container can be fully displayed */
+        #oncoprint-container svg {
+            max-width: none !important;
+            max-height: none !important;
+            width: auto !important;
+            height: auto !important;
+        }
+
+        /* Configuration sections */
+        .config-section {
+            margin-bottom: 25px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 20px;
+        }
+
+        .config-section:last-child {
+            border-bottom: none;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .section-title:before {
+            content: "▼";
+            margin-right: 8px;
+            font-size: 10px;
+            transition: transform 0.2s;
+        }
+
+        .section-title.collapsed:before {
+            transform: rotate(-90deg);
+        }
+
+        .section-content {
+            display: block;
+        }
+
+        .section-content.collapsed {
+            display: none;
+        }
+
+        /* Form controls */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 500;
+            color: #34495e;
+            margin-bottom: 5px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .form-group input[type="range"] {
+            margin: 5px 0;
+        }
+
+        .form-group input[type="checkbox"] {
+            width: auto;
+            margin-right: 8px;
+        }
+
+        .form-group input[type="color"] {
+            width: 40px;
+            height: 30px;
+            padding: 0;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        /* Inline form controls */
+        .inline-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .inline-group input {
+            flex: 1;
+        }
+
+        /* File upload area */
+        .file-upload {
+            border: 2px dashed #3498db;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .file-upload:hover {
+            background: #f8f9fa;
+        }
+
+        .file-upload.dragover {
+            border-color: #2980b9;
+            background: #e3f2fd;
+        }
+
+        /* Metadata tracks */
+        .metadata-track {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .metadata-track-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .metadata-track-name {
+            font-weight: 500;
+            font-size: 12px;
+        }
+
+        .metadata-track-controls {
+            display: flex;
+            gap: 5px;
+        }
+
+        .track-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 2px 6px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 10px;
+        }
+
+        .track-btn:hover {
+            background: #5a6268;
+        }
+
+        .track-btn.remove {
+            background: #dc3545;
+        }
+
+        .track-btn.remove:hover {
+            background: #c82333;
+        }
+
+        /* Color palette */
+        .color-palette {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 5px;
+            margin-top: 5px;
+        }
+
+        .color-swatch {
+            width: 25px;
+            height: 25px;
+            border-radius: 3px;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .color-swatch:hover {
+            border-color: #2c3e50;
+        }
+
+        /* Status bar */
+        .status-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #ecf0f1;
+            padding: 10px 20px;
+            font-size: 12px;
+            color: #7f8c8d;
+            border-top: 1px solid #bdc3c7;
+        }
+
+        /* Loading overlay */
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255,255,255,0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 1200px) {
+            .app-container {
+                grid-template-columns: 280px 1fr 260px;
+            }
+        }
+        
+        @media (max-width: 1024px) {
+            .app-container {
+                grid-template-columns: 250px 1fr 240px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .app-container {
+                grid-template-areas: 
+                    "header header header"
+                    "content content content"
+                    "sidebar rightbar rightbar";
+                grid-template-columns: 1fr 1fr 1fr;
+                grid-template-rows: 60px 1fr 300px;
+            }
+            
+            .sidebar, .rightbar {
+                height: 300px;
+            }
+            
+            #oncoprint-container {
+                width: calc(100% - 40px);
+                height: calc(100vh - 200px); /* Account for header and mobile sidebar */
+            }
+        }
+
+        /* Scrollbar styling */
+        .sidebar::-webkit-scrollbar,
+        .rightbar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-track,
+        .rightbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb,
+        .rightbar::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb:hover,
+        .rightbar::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <div class="header">
+            <h1>Oncoprint Configuration Studio</h1>
+            <div class="header-controls">
+                <button class="header-btn" onclick="loadSampleData()">Load Sample Data (with Cohort)</button>
+                <button class="header-btn" onclick="loadSampleDataMafOnly()">Load Sample Data (MAF Only)</button>
+                <button class="header-btn" onclick="resetConfiguration()">Reset Config</button>
+                <button class="header-btn export" onclick="exportSVG()">Export SVG</button>
+                <button class="header-btn export" onclick="exportPNG()">Export PNG</button>
+            </div>
+        </div>
+
+        <!-- Left Sidebar - Data & Basic Config -->
+        <div class="sidebar">
+            <!-- Data Loading Section -->
+            <div class="config-section">
+                <div class="section-title" onclick="toggleSection(this)">📁 Data Loading</div>
+                <div class="section-content">
+                    <div class="file-upload" onclick="document.getElementById('maf-file').click()">
+                        <div>📄 Click to upload MAF file</div>
+                        <div style="font-size: 11px; color: #666; margin-top: 5px;">
+                            Supports .maf, .tsv, .csv, .txt
+                        </div>
+                        <input type="file" id="maf-file" accept=".maf,.tsv,.csv,.txt" style="display: none;">
+                    </div>
+                    
+                    <div class="file-upload" onclick="document.getElementById('metadata-file').click()">
+                        <div>Click to upload Metadata file</div>
+                        <div style="font-size: 11px; color: #666; margin-top: 5px;">
+                            Optional metadata tracks
+                        </div>
+                        <input type="file" id="metadata-file" accept=".tsv,.csv,.txt" style="display: none;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visual Settings -->
+            <div class="config-section">
+                <div class="section-title" onclick="toggleSection(this)">Visual Settings</div>
+                <div class="section-content">
+                    <div class="form-group">
+                        <label>Cell Width: <span id="cell-width-value">12</span>px</label>
+                        <input type="range" id="cell-width" min="5" max="30" value="12" oninput="updateConfig()">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Cell Height: <span id="cell-height-value">15</span>px</label>
+                        <input type="range" id="cell-height" min="8" max="40" value="15" oninput="updateConfig()">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="gene-labels" checked onchange="updateConfig()">
+                            Show Gene Labels
+                        </label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="sample-labels" onchange="updateConfig()">
+                            Show Sample Labels
+                        </label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="legend" checked onchange="updateConfig()">
+                            Show Legend
+                        </label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="show-percentages" checked onchange="updateConfig()">
+                            Show Percentages
+                        </label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="show-totals" onchange="updateConfig()">
+                            Show Totals
+                        </label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="tooltips" checked onchange="updateConfig()">
+                            Enable Tooltips
+                        </label>
+                    </div>
+                    
+                    <!-- Split Visualization Controls -->
+                    <div class="form-group">
+                        <label>Split by Annotation</label>
+                        <select id="split-field" onchange="updateConfig()">
+                            <option value="">No splitting</option>
+                        </select>
+                    </div>
+                    
+                    <div id="split-options" style="display: none;">
+                        <div class="form-group">
+                            <label>Gap Size: <span id="gap-size-value">20</span>px</label>
+                            <input type="range" id="gap-size" min="5" max="50" value="20" oninput="updateConfig()">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="show-group-headers" checked onchange="updateConfig()">
+                                Show Group Headers
+                            </label>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="show-group-counts" checked onchange="updateConfig()">
+                                Show Sample Counts
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sorting & Filtering -->
+            <div class="config-section">
+                <div class="section-title" onclick="toggleSection(this)">Sorting & Filtering</div>
+                <div class="section-content">
+                    <div class="form-group">
+                        <label>Sort Genes By</label>
+                        <select id="sort-genes" onchange="updateConfig()">
+                            <option value="frequency">Frequency</option>
+                            <option value="alphabetical">Alphabetical</option>
+                            <option value="custom">Custom Order</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Sort Samples By</label>
+                        <select id="sort-samples" onchange="updateConfig()">
+                            <option value="oncoprint">Oncoprint Order</option>
+                            <option value="mutation_load">Mutation Load</option>
+                            <option value="alphabetical">Alphabetical</option>
+                            <option value="custom">Custom Order</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Gene List (one per line)</label>
+                        <textarea id="gene-list" rows="4" placeholder="TP53&#10;KRAS&#10;PIK3CA" oninput="onGeneListChange()"></textarea>
+                        <button id="apply-gene-filter" onclick="applyGeneFilter()" style="width: 100%; margin-top: 8px; padding: 8px; background: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                            Apply Gene Filter
+                        </button>
+                        <button id="clear-gene-filter" onclick="clearGeneFilter()" style="width: 100%; margin-top: 4px; padding: 6px; background: #95a5a6; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 11px;">
+                            Clear Filter (Show All Genes)
+                        </button>
+                        <button id="show-available-genes" onclick="showAvailableGenes()" style="width: 100%; margin-top: 4px; padding: 6px; background: #34495e; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 11px;">
+                            Show Available Genes
+                        </button>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Min Mutation Frequency: <span id="min-freq-value">0</span>%</label>
+                        <input type="range" id="min-freq" min="0" max="100" value="0" oninput="updateConfig()">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="content">
+            <div id="oncoprint-container"></div>
+            <div class="loading-overlay" id="loading-overlay">
+                <div class="loading-spinner"></div>
+            </div>
+            <div class="status-bar" id="status-bar">
+                Ready - Load data to begin visualization
+            </div>
+        </div>
+
+        <!-- Right Sidebar - Advanced Config -->
+        <div class="rightbar">
+            <!-- Variant Colors -->
+            <div class="config-section">
+                <div class="section-title" onclick="toggleSection(this)">Variant Colors</div>
+                <div class="section-content" id="variant-colors-section">
+                    <!-- Dynamic variant color controls will be inserted here -->
+                </div>
+            </div>
+
+            <!-- Metadata Tracks -->
+            <div class="config-section">
+                <div class="section-title" onclick="toggleSection(this)">📋 Metadata Tracks</div>
+                <div class="section-content">
+                    <div class="form-group">
+                        <label>Available Metadata Fields</label>
+                        <select id="metadata-fields" onchange="previewMetadataTrack()">
+                            <option value="">Select a field...</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Track Type</label>
+                        <select id="track-type" onchange="updateTrackTypeControls()">
+                            <option value="auto">Auto-detect</option>
+                            <option value="categorical">Categorical</option>
+                            <option value="numerical">Numerical</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Track Height: <span id="track-height-value">15</span>px</label>
+                        <input type="range" id="track-height" min="10" max="50" value="15">
+                    </div>
+                    
+                    <div class="form-group" id="categorical-colors" style="display: none;">
+                        <label>Color Scheme (Categorical)</label>
+                        <select id="categorical-scheme">
+                            <option value="category10">Category 10</option>
+                            <option value="category20">Category 20</option>
+                            <option value="pastel1">Pastel 1</option>
+                            <option value="set3">Set 3</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" id="numerical-colors" style="display: none;">
+                        <label>Color Scale (Numerical)</label>
+                        <select id="numerical-scheme">
+                            <option value="blues">Blues</option>
+                            <option value="viridis">Viridis</option>
+                            <option value="plasma">Plasma</option>
+                            <option value="reds">Reds</option>
+                            <option value="greens">Greens</option>
+                        </select>
+                    </div>
+                    
+                    <button onclick="addMetadataTrack()" style="width: 100%; padding: 8px; background: #27ae60; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                        Add Track
+                    </button>
+                    
+                    <div id="metadata-tracks-list" style="margin-top: 15px;">
+                        <!-- Dynamic metadata tracks will be added here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Export Settings -->
+            <div class="config-section">
+                <div class="section-title" onclick="toggleSection(this)">💾 Export Settings</div>
+                <div class="section-content">
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="exportable" checked onchange="updateConfig()">
+                            Enable Export Functions
+                        </label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Export Width</label>
+                        <input type="number" id="export-width" value="1200" min="400" max="4000">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Export Height</label>
+                        <input type="number" id="export-height" value="800" min="300" max="3000">
+                    </div>
+                    
+                    <div class="form-group">
+                        <button onclick="exportData()" style="width: 100%; padding: 8px; background: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer; margin-bottom: 5px;">
+                            Export Processed Data (JSON)
+                        </button>
+                        
+                        <button onclick="exportConfig()" style="width: 100%; padding: 8px; background: #9b59b6; color: white; border: none; border-radius: 4px; cursor: pointer; margin-bottom: 5px;">
+                            Export Configuration
+                        </button>
+
+                        <button onclick="exportPNGTransparent()" style="width: 100%; padding: 6px; background: #95a5a6; color: white; border: none; border-radius: 4px; cursor: pointer; margin-bottom: 3px; font-size: 11px;">
+                            Export PNG (Transparent)
+                        </button>
+
+                        <button onclick="exportPNGFull()" style="width: 100%; padding: 6px; background: #95a5a6; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 11px;">
+                            Export PNG (Full Layout)
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistics -->
+            <div class="config-section">
+                <div class="section-title" onclick="toggleSection(this)">📈 Statistics</div>
+                <div class="section-content" id="stats-section">
+                    <div style="font-size: 11px; color: #666;">
+                        Load data to view statistics
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="../dist/oncoprint.umd.js"></script>
+    <script>
+        // Check if library loaded correctly
+        if (typeof Oncoprint === 'undefined') {
+            document.getElementById('status-bar').textContent = 'Error: Failed to load Oncoprint library';
+        }
+        
+        let visualizer = null;
+        let currentData = null;
+        let metadataData = null;
+        
+        // Default variant colors
+        const DEFAULT_VARIANT_COLORS = {
+            "Missense_Mutation": "#16a085",
+            "Splice_Site": "#27ae60", 
+            "Frame_Shift_Del": "#2980b9",
+            "Frame_Shift_Ins": "#c0392b",
+            "In_Frame_Del": "#f39c12",
+            "In_Frame_Ins": "#8e44ad",
+            "Nonsense_Mutation": "#34495e",
+            "Multi_Hit": "#95a5a6",
+            "Translation_Start_Site": "#e74c3c",
+            "Nonstop_Mutation": "#d35400",
+            "Default": "#95a5a6",
+            "Empty": "#ecf0f1"
+        };
+
+        // Initialize the visualizer
+        function initializeVisualizer() {
+            if (typeof Oncoprint === 'undefined') {
+                updateStatus('Error: Oncoprint library not available');
+                return;
+            }
+            
+            const container = document.getElementById('oncoprint-container');
+            
+            visualizer = new Oncoprint.OncoprintVisualizer(container, {
+                cellWidth: 12,
+                cellHeight: 15,
+                geneLabels: true,
+                sampleLabels: false,
+                legend: true,
+                showPercentages: true,
+                tooltips: true,
+                variantColors: DEFAULT_VARIANT_COLORS
+            });
+            
+            // Set up event listeners
+            visualizer.on('cellClick', (data) => {
+                updateStatus(`Cell clicked: ${data.gene} in ${data.sample} (${data.variant})`);
+            });
+            
+            visualizer.on('geneClick', (data) => {
+                updateStatus(`Gene clicked: ${data.gene}`);
+            });
+            
+            visualizer.on('dataLoaded', (data) => {
+                currentData = data;
+                updateStatistics();
+                updateVariantColorControls();
+                updateStatus(`Data loaded: ${data.mutations ? data.mutations.length : 0} mutations`);
+                hideLoading();
+            });
+            
+            visualizer.on('error', (error) => {
+                updateStatus(`Error: ${error.message}`);
+                hideLoading();
+            });
+        }
+
+        // Helper function to update metadata dropdowns
+        function updateMetadataDropdowns(metadataData) {
+            if (!metadataData || metadataData.length === 0) return;
+            
+            // Update metadata fields dropdown (for tracks)
+            const metadataSelect = document.getElementById('metadata-fields');
+            metadataSelect.innerHTML = '<option value="">Select a field...</option>';
+            
+            // Update split field dropdown
+            const splitSelect = document.getElementById('split-field');
+            splitSelect.innerHTML = '<option value="">No splitting</option>';
+            
+            Object.keys(metadataData[0]).forEach(field => {
+                if (field !== 'Tumor_Sample_Barcode') {
+                    const displayName = field.replace(/_/g, ' ');
+                    metadataSelect.innerHTML += `<option value="${field}">${displayName}</option>`;
+                    splitSelect.innerHTML += `<option value="${field}">${displayName}</option>`;
+                }
+            });
+        }
+
+        // Update configuration based on form inputs
+        function updateConfig() {
+            if (!visualizer) return;
+            
+            // Update range value displays
+            document.getElementById('cell-width-value').textContent = document.getElementById('cell-width').value;
+            document.getElementById('cell-height-value').textContent = document.getElementById('cell-height').value;
+            document.getElementById('min-freq-value').textContent = document.getElementById('min-freq').value;
+            document.getElementById('track-height-value').textContent = document.getElementById('track-height').value;
+            document.getElementById('gap-size-value').textContent = document.getElementById('gap-size').value;
+            
+            // Handle split visualization settings
+            const splitField = document.getElementById('split-field').value;
+            const splitOptions = document.getElementById('split-options');
+            
+            // Show/hide split options based on selection
+            if (splitField) {
+                splitOptions.style.display = 'block';
+            } else {
+                splitOptions.style.display = 'none';
+            }
+            
+            const config = {
+                cellWidth: parseInt(document.getElementById('cell-width').value),
+                cellHeight: parseInt(document.getElementById('cell-height').value),
+                geneLabels: document.getElementById('gene-labels').checked,
+                sampleLabels: document.getElementById('sample-labels').checked,
+                legend: document.getElementById('legend').checked,
+                showPercentages: document.getElementById('show-percentages').checked,
+                showTotals: document.getElementById('show-totals').checked,
+                tooltips: document.getElementById('tooltips').checked,
+                sortGenes: document.getElementById('sort-genes').value,
+                sortSamples: document.getElementById('sort-samples').value,
+                exportable: document.getElementById('exportable').checked
+            };
+            
+            // Add split configuration - always set it to ensure proper clearing
+            if (splitField) {
+                config.splitBy = {
+                    field: splitField,
+                    gapSize: parseInt(document.getElementById('gap-size').value),
+                    showGroupHeaders: document.getElementById('show-group-headers').checked,
+                    showGroupCounts: document.getElementById('show-group-counts').checked
+                };
+            } else {
+                // Explicitly clear split configuration
+                config.splitBy = undefined;
+            }
+            
+            // Note: Gene filtering is now handled by dedicated applyGeneFilter() function
+            
+            visualizer.update(config);
+            
+            // Apply frequency filter
+            const minFreq = parseInt(document.getElementById('min-freq').value) / 100;
+            if (minFreq > 0) {
+                visualizer.filterByMutationFrequency(minFreq);
+            }
+        }
+
+        // Toggle section visibility
+        function toggleSection(element) {
+            element.classList.toggle('collapsed');
+            const content = element.nextElementSibling;
+            content.classList.toggle('collapsed');
+        }
+
+        // Show/hide loading overlay
+        function showLoading() {
+            document.getElementById('loading-overlay').style.display = 'flex';
+        }
+
+        function hideLoading() {
+            document.getElementById('loading-overlay').style.display = 'none';
+        }
+
+        // Update status bar
+        function updateStatus(message) {
+            document.getElementById('status-bar').textContent = message;
+        }
+
+        // File parsing utilities
+        function parseDelimitedFile(content, filename) {
+            const lines = content.trim().split('\n');
+            if (lines.length < 2) throw new Error('File must have at least a header and one data row');
+            
+            // Detect delimiter
+            const delimiter = filename.toLowerCase().includes('.csv') ? ',' : '\t';
+            
+            const headers = lines[0].split(delimiter).map(h => h.trim());
+            const data = [];
+            
+            for (let i = 1; i < lines.length; i++) {
+                const values = lines[i].split(delimiter);
+                if (values.length !== headers.length) continue; // Skip malformed rows
+                
+                const row = {};
+                headers.forEach((header, index) => {
+                    row[header] = values[index] ? values[index].trim() : '';
+                });
+                data.push(row);
+            }
+            
+            return data;
+        }
+
+        function validateMafData(data) {
+            const required = ['Hugo_Symbol', 'Tumor_Sample_Barcode', 'Variant_Classification'];
+            const errors = [];
+            
+            if (!Array.isArray(data) || data.length === 0) {
+                errors.push('No data found');
+                return { isValid: false, errors, warnings: [] };
+            }
+            
+            const firstRow = data[0];
+            const missing = required.filter(field => !(field in firstRow));
+            
+            if (missing.length > 0) {
+                errors.push(`Missing required columns: ${missing.join(', ')}`);
+            }
+            
+            return {
+                isValid: errors.length === 0,
+                errors: errors.map(msg => ({ message: msg, type: 'error' })),
+                warnings: []
+            };
+        }
+
+        function validateMetadataData(data) {
+            const errors = [];
+            
+            if (!Array.isArray(data) || data.length === 0) {
+                errors.push('No metadata found');
+                return { isValid: false, errors, warnings: [] };
+            }
+            
+            const firstRow = data[0];
+            if (!('Tumor_Sample_Barcode' in firstRow)) {
+                errors.push('Missing required column: Tumor_Sample_Barcode');
+            }
+            
+            return {
+                isValid: errors.length === 0,
+                errors: errors.map(msg => ({ message: msg, type: 'error' })),
+                warnings: []
+            };
+        }
+
+        // Update statistics display
+        function updateStatistics() {
+            if (!visualizer) return;
+            
+            const stats = visualizer.getMutationStats();
+            const displayedSamples = visualizer.getAvailableSamples ? visualizer.getAvailableSamples().length : 0;
+            const percentageBase = visualizer.getPercentageCalculationBase ? visualizer.getPercentageCalculationBase() : 0;
+            const cohortInfo = visualizer.getCohortInfo ? visualizer.getCohortInfo() : { totalSamples: 0, hasCohortInfo: false };
+            
+            const calculationMethod = cohortInfo.hasCohortInfo ? 'Cohort-based' : 'MAF-based';
+            const missingSamplesInfo = cohortInfo.missingSamples ? ` (${cohortInfo.missingSamples.length} missing)` : '';
+            
+            const statsHtml = `
+                <div style="font-size: 11px; line-height: 1.4;">
+                    <div><strong>Total Mutations:</strong> ${stats.totalMutations || 0}</div>
+                    <div><strong>Total Genes:</strong> ${stats.totalGenes || 0}</div>
+                    <div><strong>Displayed Samples:</strong> ${displayedSamples}${missingSamplesInfo}</div>
+                    <div><strong>Percentage Calculation:</strong> ${calculationMethod}</div>
+                    <div><strong>Percentage Base:</strong> ${percentageBase} samples</div>
+                    <div><strong>Avg Mutations/Sample:</strong> ${(stats.averageMutationsPerSample || 0).toFixed(1)}</div>
+                    <div><strong>Avg Mutations/Gene:</strong> ${(stats.averageMutationsPerGene || 0).toFixed(1)}</div>
+                    <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #eee; color: #666;">
+                        <div><em>Percentages calculated using ${calculationMethod.toLowerCase()} method (n=${percentageBase})</em></div>
+                        ${cohortInfo.hasCohortInfo ? '<div><em>Cohort information provided - empty cells shown for missing samples</em></div>' : '<div><em>No cohort info - percentages based on MAF data only</em></div>'}
+                    </div>
+                </div>
+            `;
+            document.getElementById('stats-section').innerHTML = statsHtml;
+        }
+
+        // Update variant color controls
+        function updateVariantColorControls() {
+            if (!visualizer) return;
+            
+            const variantTypes = visualizer.getVariantTypes();
+            const section = document.getElementById('variant-colors-section');
+            
+            let html = '';
+            variantTypes.forEach(variant => {
+                const currentColor = DEFAULT_VARIANT_COLORS[variant] || DEFAULT_VARIANT_COLORS.Default;
+                html += `
+                    <div class="form-group">
+                        <label>${variant}</label>
+                        <div class="inline-group">
+                            <input type="color" value="${currentColor}" onchange="updateVariantColor('${variant}', this.value)">
+                            <input type="text" value="${currentColor}" onchange="updateVariantColor('${variant}', this.value)">
+                        </div>
+                    </div>
+                `;
+            });
+            
+            section.innerHTML = html;
+        }
+
+        // Update variant color
+        function updateVariantColor(variant, color) {
+            if (!visualizer) return;
+            
+            const currentColors = visualizer.getConfig().variantColors || {};
+            currentColors[variant] = color;
+            
+            visualizer.update({ variantColors: currentColors });
+        }
+
+        // Add metadata track
+        function addMetadataTrack() {
+            const field = document.getElementById('metadata-fields').value;
+            const type = document.getElementById('track-type').value;
+            const height = parseInt(document.getElementById('track-height').value);
+            
+            if (!field) {
+                alert('Please select a metadata field');
+                return;
+            }
+            
+            const trackConfig = {
+                field: field,
+                label: field.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+                type: type === 'auto' ? undefined : type,
+                height: height,
+                visible: true
+            };
+            
+            // Add color scheme for categorical/numerical data
+            if (type === 'categorical') {
+                const scheme = document.getElementById('categorical-scheme').value;
+                trackConfig.colors = scheme;
+            } else if (type === 'numerical') {
+                const scheme = document.getElementById('numerical-scheme').value;
+                trackConfig.colorScale = scheme;
+            } else if (type === 'auto' && field && metadataData) {
+                // For auto-detection, determine the type and apply appropriate color scheme
+                const values = metadataData.map(row => row[field]).filter(v => v !== undefined && v !== null && v !== '');
+                const isNumeric = values.every(v => !isNaN(parseFloat(v)) && isFinite(v));
+                const uniqueValues = [...new Set(values)];
+                const detectedType = isNumeric && uniqueValues.length > 10 ? 'numerical' : 'categorical';
+                
+                // Force the detected type for proper color handling
+                trackConfig.type = detectedType;
+                
+                if (detectedType === 'categorical') {
+                    const scheme = document.getElementById('categorical-scheme').value;
+                    trackConfig.colors = scheme;
+                } else {
+                    const scheme = document.getElementById('numerical-scheme').value;
+                    trackConfig.colorScale = scheme;
+                }
+            }
+            
+            try {
+                if (visualizer && typeof visualizer.addMetadataTrack === 'function') {
+                    visualizer.addMetadataTrack(trackConfig);
+                    updateMetadataTracksList();
+                } else {
+                    // Fallback: add to configuration and re-render
+                    const config = visualizer.getConfig();
+                    if (!config.metadata) config.metadata = { tracks: [] };
+                    if (!config.metadata.tracks) config.metadata.tracks = [];
+                    config.metadata.tracks.push(trackConfig);
+                    visualizer.update(config);
+                    updateMetadataTracksList();
+                }
+            } catch (error) {
+                updateStatus(`Error adding metadata track: ${error.message}`);
+            }
+        }
+
+        // Update metadata tracks list
+        function updateMetadataTracksList() {
+            if (!visualizer) return;
+            
+            try {
+                let tracks = [];
+                if (typeof visualizer.getMetadataConfig === 'function') {
+                    tracks = visualizer.getMetadataConfig();
+                } else {
+                    // Fallback: get from config
+                    const config = visualizer.getConfig();
+                    tracks = (config.metadata && config.metadata.tracks) ? config.metadata.tracks : [];
+                }
+                
+                const container = document.getElementById('metadata-tracks-list');
+                
+                let html = '';
+                tracks.forEach((track, index) => {
+                    html += `
+                        <div class="metadata-track">
+                            <div class="metadata-track-header">
+                                <div class="metadata-track-name">${track.label || track.field}</div>
+                                <div class="metadata-track-controls">
+                                    <button class="track-btn" onclick="toggleMetadataTrack('${track.field}', ${track.visible})">
+                                        ${track.visible ? 'Hide' : 'Show'}
+                                    </button>
+                                    <button class="track-btn remove" onclick="removeMetadataTrack('${track.field}')">×</button>
+                                </div>
+                            </div>
+                            <div style="font-size: 10px; color: #666;">
+                                Type: ${track.type || 'auto'} | Height: ${track.height || 15}px
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                container.innerHTML = html;
+            } catch (error) {
+                updateStatus(`Error updating metadata tracks list: ${error.message}`);
+            }
+        }
+
+        // Toggle metadata track visibility
+        function toggleMetadataTrack(field, currentlyVisible) {
+            try {
+                if (typeof visualizer.hideMetadataTrack === 'function' && typeof visualizer.showMetadataTrack === 'function') {
+                    if (currentlyVisible) {
+                        visualizer.hideMetadataTrack(field);
+                    } else {
+                        visualizer.showMetadataTrack(field);
+                    }
+                } else {
+                    // Fallback: modify config directly
+                    const config = visualizer.getConfig();
+                    if (config.metadata && config.metadata.tracks) {
+                        const track = config.metadata.tracks.find(t => t.field === field);
+                        if (track) {
+                            track.visible = !currentlyVisible;
+                            visualizer.update(config);
+                        }
+                    }
+                }
+                updateMetadataTracksList();
+            } catch (error) {
+                updateStatus(`Error toggling metadata track: ${error.message}`);
+            }
+        }
+
+        // Remove metadata track
+        function removeMetadataTrack(field) {
+            try {
+                if (typeof visualizer.removeMetadataTrack === 'function') {
+                    visualizer.removeMetadataTrack(field);
+                } else {
+                    // Fallback: modify config directly
+                    const config = visualizer.getConfig();
+                    if (config.metadata && config.metadata.tracks) {
+                        config.metadata.tracks = config.metadata.tracks.filter(t => t.field !== field);
+                        visualizer.update(config);
+                    }
+                }
+                updateMetadataTracksList();
+            } catch (error) {
+                updateStatus(`Error removing metadata track: ${error.message}`);
+            }
+        }
+
+        // Update track type controls visibility
+        function updateTrackTypeControls() {
+            const type = document.getElementById('track-type').value;
+            const field = document.getElementById('metadata-fields').value;
+            
+            if (type === 'auto' && field && metadataData) {
+                // For auto-detection, determine the type and show appropriate controls
+                const values = metadataData.map(row => row[field]).filter(v => v !== undefined && v !== null && v !== '');
+                const isNumeric = values.every(v => !isNaN(parseFloat(v)) && isFinite(v));
+                const uniqueValues = [...new Set(values)];
+                const detectedType = isNumeric && uniqueValues.length > 10 ? 'numerical' : 'categorical';
+                
+                document.getElementById('categorical-colors').style.display = detectedType === 'categorical' ? 'block' : 'none';
+                document.getElementById('numerical-colors').style.display = detectedType === 'numerical' ? 'block' : 'none';
+            } else {
+                // Show controls based on explicitly selected type
+                document.getElementById('categorical-colors').style.display = type === 'categorical' ? 'block' : 'none';
+                document.getElementById('numerical-colors').style.display = type === 'numerical' ? 'block' : 'none';
+            }
+        }
+
+        // Preview metadata track type
+        function previewMetadataTrack() {
+            const field = document.getElementById('metadata-fields').value;
+            if (!field || !metadataData) return;
+            
+            // Analyze field data to suggest type
+            const values = metadataData.map(row => row[field]).filter(v => v !== undefined && v !== null && v !== '');
+            const uniqueValues = [...new Set(values)];
+            
+            // Suggest type based on data
+            const isNumeric = values.every(v => !isNaN(parseFloat(v)) && isFinite(v));
+            const suggestedType = isNumeric && uniqueValues.length > 10 ? 'numerical' : 'categorical';
+            
+            document.getElementById('track-type').value = suggestedType;
+            
+            // Update color controls visibility
+            updateTrackTypeControls();
+        }
+
+        // Global functions for buttons
+        window.loadSampleData = async function() {
+            if (!visualizer) initializeVisualizer();
+            
+            showLoading();
+            updateStatus('Generating sample data...');
+            
+            // Generate sample MAF data
+            const genes = ['TP53', 'KRAS', 'PIK3CA', 'EGFR', 'BRAF', 'APC', 'PTEN', 'CDKN2A', 'BRCA1', 'BRCA2'];
+            
+            // Create a larger cohort to demonstrate the difference
+            const totalCohortSize = 120; // Total patients in study
+            const samplesWithMutations = 80; // Patients with mutations in our data
+            
+            const allCohortSamples = Array.from({length: totalCohortSize}, (_, i) => `Sample_${String(i + 1).padStart(3, '0')}`);
+            const samplesInMaf = allCohortSamples.slice(0, samplesWithMutations); // First 80 have mutations
+            
+            const variantTypes = ['Missense_Mutation', 'Nonsense_Mutation', 'Frame_Shift_Del', 'Frame_Shift_Ins', 'Splice_Site', 'In_Frame_Del'];
+            
+            const mafData = [];
+            genes.forEach(gene => {
+                const numMutations = Math.floor(Math.random() * 25) + 5;
+                const mutatedSamples = samplesInMaf.sort(() => 0.5 - Math.random()).slice(0, numMutations);
+                
+                mutatedSamples.forEach(sample => {
+                    // Sometimes add multiple mutations for the same gene-sample pair
+                    const numMutationsForSample = Math.random() < 0.15 ? 2 : 1;
+                    for (let i = 0; i < numMutationsForSample; i++) {
+                        mafData.push({
+                            Hugo_Symbol: gene,
+                            Tumor_Sample_Barcode: sample,
+                            Variant_Classification: variantTypes[Math.floor(Math.random() * variantTypes.length)],
+                            Protein_Change: `p.${gene}${Math.floor(Math.random() * 300) + 1}${String.fromCharCode(65 + Math.floor(Math.random() * 26))}`
+                        });
+                    }
+                });
+            });
+            
+            // Generate sample metadata for ALL cohort samples
+            const tumorTypes = ['BRCA', 'LUAD', 'COAD', 'GBM', 'OV', 'UCEC', 'KIRC', 'HNSC'];
+            const stages = ['Stage I', 'Stage II', 'Stage III', 'Stage IV'];
+            const genders = ['Male', 'Female'];
+            
+            metadataData = allCohortSamples.map(sample => ({
+                Tumor_Sample_Barcode: sample,
+                tumor_type: tumorTypes[Math.floor(Math.random() * tumorTypes.length)],
+                stage: stages[Math.floor(Math.random() * stages.length)],
+                gender: genders[Math.floor(Math.random() * genders.length)],
+                age_at_diagnosis: Math.floor(Math.random() * 60) + 30,
+                mutation_count: Math.floor(Math.random() * 50) + 5,
+                survival_months: Math.floor(Math.random() * 120) + 12
+            }));
+            
+            try {
+                // Demonstrate cohort-based calculation with full sample list
+                const cohortInfo = {
+                    samples: allCohortSamples,
+                    name: 'Demo Cancer Study',
+                    description: `Full cohort of ${totalCohortSize} patients`
+                };
+                
+                console.log('Loading with cohort info:', cohortInfo);
+                console.log(`MAF data includes ${samplesWithMutations} samples, cohort has ${totalCohortSize} samples`);
+                console.log(`This will show empty cells for ${totalCohortSize - samplesWithMutations} samples without mutations`);
+                
+                await visualizer.loadMafData(mafData, cohortInfo);
+                await visualizer.loadMetadataData(metadataData);
+                
+                // Update metadata fields dropdown
+                updateMetadataDropdowns(metadataData);
+                
+                visualizer.render();
+                updateStatus(`Loaded with cohort info: ${samplesWithMutations} samples with mutations, ${totalCohortSize - samplesWithMutations} without (empty cells)`);
+            } catch (error) {
+                updateStatus(`Error loading sample data: ${error.message}`);
+                hideLoading();
+            }
+        };
+
+        window.loadSampleDataMafOnly = async function() {
+            if (!visualizer) initializeVisualizer();
+            
+            showLoading();
+            updateStatus('Generating sample data (MAF-only mode)...');
+            
+            // Generate sample MAF data (same as before but without cohort info)
+            const genes = ['TP53', 'KRAS', 'PIK3CA', 'EGFR', 'BRAF', 'APC', 'PTEN', 'CDKN2A', 'BRCA1', 'BRCA2'];
+            const samples = Array.from({length: 80}, (_, i) => `Sample_${String(i + 1).padStart(3, '0')}`);
+            const variantTypes = ['Missense_Mutation', 'Nonsense_Mutation', 'Frame_Shift_Del', 'Frame_Shift_Ins', 'Splice_Site', 'In_Frame_Del'];
+            
+            const mafData = [];
+            genes.forEach(gene => {
+                const numMutations = Math.floor(Math.random() * 25) + 5;
+                const mutatedSamples = samples.sort(() => 0.5 - Math.random()).slice(0, numMutations);
+                
+                mutatedSamples.forEach(sample => {
+                    // Sometimes add multiple mutations for the same gene-sample pair
+                    const numMutationsForSample = Math.random() < 0.15 ? 2 : 1;
+                    for (let i = 0; i < numMutationsForSample; i++) {
+                        mafData.push({
+                            Hugo_Symbol: gene,
+                            Tumor_Sample_Barcode: sample,
+                            Variant_Classification: variantTypes[Math.floor(Math.random() * variantTypes.length)],
+                            Protein_Change: `p.${gene}${Math.floor(Math.random() * 300) + 1}${String.fromCharCode(65 + Math.floor(Math.random() * 26))}`
+                        });
+                    }
+                });
+            });
+            
+            // Generate sample metadata for MAF samples only
+            const tumorTypes = ['BRCA', 'LUAD', 'COAD', 'GBM', 'OV', 'UCEC', 'KIRC', 'HNSC'];
+            const stages = ['Stage I', 'Stage II', 'Stage III', 'Stage IV'];
+            const genders = ['Male', 'Female'];
+            
+            metadataData = samples.map(sample => ({
+                Tumor_Sample_Barcode: sample,
+                tumor_type: tumorTypes[Math.floor(Math.random() * tumorTypes.length)],
+                stage: stages[Math.floor(Math.random() * stages.length)],
+                gender: genders[Math.floor(Math.random() * genders.length)],
+                age_at_diagnosis: Math.floor(Math.random() * 60) + 30,
+                mutation_count: Math.floor(Math.random() * 50) + 5,
+                survival_months: Math.floor(Math.random() * 120) + 12
+            }));
+            
+            try {
+                console.log('Loading without cohort info (MAF-only mode)');
+                console.log(`MAF data includes ${samples.length} samples - percentages will be based on these samples only`);
+                
+                // Load without cohort info - percentages will be MAF-based
+                await visualizer.loadMafData(mafData); // No cohort info parameter
+                await visualizer.loadMetadataData(metadataData);
+                
+                // Update metadata fields dropdown
+                updateMetadataDropdowns(metadataData);
+                
+                visualizer.render();
+                updateStatus(`Loaded in MAF-only mode: ${samples.length} samples, percentages based on MAF data only`);
+            } catch (error) {
+                updateStatus(`Error loading sample data: ${error.message}`);
+                hideLoading();
+            }
+        };
+
+        window.resetConfiguration = function() {
+            // Reset all form controls to defaults
+            document.getElementById('cell-width').value = 12;
+            document.getElementById('cell-height').value = 15;
+            document.getElementById('gene-labels').checked = true;
+            document.getElementById('sample-labels').checked = false;
+            document.getElementById('legend').checked = true;
+            document.getElementById('show-percentages').checked = true;
+            document.getElementById('show-totals').checked = false;
+            document.getElementById('tooltips').checked = true;
+            document.getElementById('sort-genes').value = 'frequency';
+            document.getElementById('sort-samples').value = 'oncoprint';
+            document.getElementById('gene-list').value = '';
+            document.getElementById('min-freq').value = 0;
+            document.getElementById('exportable').checked = true;
+            
+            updateConfig();
+            updateStatus('Configuration reset to defaults');
+        };
+
+        window.exportSVG = function() {
+            if (!visualizer) return;
+            
+            try {
+                const svg = visualizer.exportSVG();
+                const blob = new Blob([svg], { type: 'image/svg+xml' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'oncoprint.svg';
+                a.click();
+                URL.revokeObjectURL(url);
+                updateStatus('SVG exported successfully');
+            } catch (error) {
+                updateStatus(`Error exporting SVG: ${error.message}`);
+            }
+        };
+
+        window.exportPNG = async function() {
+            if (!visualizer) return;
+            
+            try {
+                console.log('Exporting PNG with complete content bounds...');
+                
+                // Get current configuration for debugging
+                const config = visualizer.getConfig();
+                console.log('Current config:', config);
+                
+                // Export with enhanced options: white background, cropped to content, scale for high DPI
+                const blob = await visualizer.exportPNG({
+                    backgroundColor: 'white',
+                    cropToContent: true,
+                    padding: 15,
+                    scale: 1.5 // Reduced scale to avoid issues, but still better quality
+                });
+                
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'oncoprint.png';
+                a.click();
+                URL.revokeObjectURL(url);
+                updateStatus('PNG exported successfully (includes metadata tracks & legends)');
+            } catch (error) {
+                console.error('PNG export error:', error);
+                updateStatus(`Error exporting PNG: ${error.message}`);
+            }
+        };
+
+        window.exportPNGTransparent = async function() {
+            if (!visualizer) return;
+            
+            try {
+                const blob = await visualizer.exportPNG({
+                    backgroundColor: 'transparent',
+                    cropToContent: true,
+                    padding: 5,
+                    scale: 1
+                });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'oncoprint-transparent.png';
+                a.click();
+                URL.revokeObjectURL(url);
+                updateStatus('PNG exported (transparent background, cropped)');
+            } catch (error) {
+                updateStatus(`Error exporting PNG: ${error.message}`);
+            }
+        };
+
+        window.exportPNGFull = async function() {
+            if (!visualizer) return;
+            
+            try {
+                const blob = await visualizer.exportPNG({
+                    backgroundColor: 'white',
+                    cropToContent: false, // Include all margins and spacing
+                    padding: 0,
+                    scale: 1
+                });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'oncoprint-full.png';
+                a.click();
+                URL.revokeObjectURL(url);
+                updateStatus('PNG exported (full layout with margins)');
+            } catch (error) {
+                updateStatus(`Error exporting PNG: ${error.message}`);
+            }
+        };
+
+        window.exportData = function() {
+            if (!visualizer) return;
+            
+            try {
+                const data = visualizer.exportData();
+                const json = JSON.stringify(data, null, 2);
+                const blob = new Blob([json], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'oncoprint-data.json';
+                a.click();
+                URL.revokeObjectURL(url);
+                updateStatus('Data exported successfully');
+            } catch (error) {
+                updateStatus(`Error exporting data: ${error.message}`);
+            }
+        };
+
+        window.exportConfig = function() {
+            if (!visualizer) return;
+            
+            try {
+                const config = visualizer.getConfig();
+                const json = JSON.stringify(config, null, 2);
+                const blob = new Blob([json], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'oncoprint-config.json';
+                a.click();
+                URL.revokeObjectURL(url);
+                updateStatus('Configuration exported successfully');
+            } catch (error) {
+                updateStatus(`Error exporting configuration: ${error.message}`);
+            }
+        };
+
+        // File upload handlers
+        document.getElementById('maf-file').addEventListener('change', async function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            if (!visualizer) initializeVisualizer();
+            if (!visualizer) return;
+            
+            showLoading();
+            updateStatus('Loading MAF file...');
+            
+            try {
+                const content = await file.text();
+                const data = parseDelimitedFile(content, file.name);
+                const validation = validateMafData(data);
+                
+                if (validation.isValid) {
+                    await visualizer.loadMafData(data);
+                    visualizer.render();
+                } else {
+                    updateStatus(`Validation errors: ${validation.errors.map(e => e.message).join(', ')}`);
+                    hideLoading();
+                }
+            } catch (error) {
+                updateStatus(`Error loading MAF file: ${error.message}`);
+                hideLoading();
+            }
+        });
+
+        document.getElementById('metadata-file').addEventListener('change', async function(event) {
+            const file = event.target.files[0];
+            if (!file || !visualizer) return;
+            
+            showLoading();
+            updateStatus('Loading metadata file...');
+            
+            try {
+                const content = await file.text();
+                const data = parseDelimitedFile(content, file.name);
+                const validation = validateMetadataData(data);
+                
+                if (validation.isValid) {
+                    metadataData = data;
+                    await visualizer.loadMetadataData(data);
+                    
+                    // Update metadata fields dropdown
+                    updateMetadataDropdowns(data);
+                    
+                    visualizer.render();
+                } else {
+                    updateStatus(`Metadata validation errors: ${validation.errors.map(e => e.message).join(', ')}`);
+                    hideLoading();
+                }
+            } catch (error) {
+                updateStatus(`Error loading metadata file: ${error.message}`);
+                hideLoading();
+            }
+        });
+
+        // Gene list functionality
+        let geneFilterApplied = false;
+        
+        function onGeneListChange() {
+            const geneList = document.getElementById('gene-list').value.trim();
+            const applyButton = document.getElementById('apply-gene-filter');
+            const clearButton = document.getElementById('clear-gene-filter');
+            
+            if (geneList) {
+                // Always show pending when there are changes, regardless of current filter state
+                applyButton.style.background = '#e74c3c'; // Red to indicate changes need to be applied
+                applyButton.textContent = 'Apply Gene Filter (Changes Pending)';
+            } else {
+                // No gene list entered
+                if (geneFilterApplied) {
+                    // Currently filtered but no genes in textarea - this would clear the filter
+                    applyButton.style.background = '#f39c12'; // Orange to indicate this would clear
+                    applyButton.textContent = 'Clear Gene Filter';
+                } else {
+                    // No filter applied and no genes entered
+                    applyButton.style.background = '#3498db';
+                    applyButton.textContent = 'Apply Gene Filter';
+                }
+            }
+            
+            clearButton.style.display = geneFilterApplied ? 'block' : 'none';
+        }
+        
+        function applyGeneFilter() {
+            if (!visualizer) return;
+            
+            const geneListText = document.getElementById('gene-list').value.trim();
+            
+            // If no genes specified but filter is currently applied, clear the filter
+            if (!geneListText && geneFilterApplied) {
+                clearGeneFilter();
+                return;
+            }
+            
+            if (!geneListText) {
+                updateStatus('Please enter gene names to filter');
+                return;
+            }
+            
+            showLoading();
+            updateStatus('Applying gene filter...');
+            
+            try {
+                const geneList = geneListText.split('\n').map(g => g.trim()).filter(g => g);
+                
+                // Check if genes exist in the original data (not just currently filtered genes)
+                const allGenes = visualizer.getAllGenes ? visualizer.getAllGenes() : visualizer.getAvailableGenes();
+                const currentGenes = visualizer.getAvailableGenes();
+                console.log('All genes in dataset:', allGenes);
+                console.log('Currently displayed genes:', currentGenes);
+                console.log('Requested genes:', geneList);
+                
+                const validGenes = geneList.filter(gene => allGenes.includes(gene));
+                const invalidGenes = geneList.filter(gene => !allGenes.includes(gene));
+                
+                console.log('Valid genes:', validGenes);
+                console.log('Invalid genes:', invalidGenes);
+                
+                if (validGenes.length === 0) {
+                    updateStatus(`No valid genes found. Available genes: ${allGenes.slice(0, 10).join(', ')}${allGenes.length > 10 ? '...' : ''}`);
+                    hideLoading();
+                    return;
+                }
+                
+                if (invalidGenes.length > 0) {
+                    updateStatus(`Warning: ${invalidGenes.length} genes not found in data: ${invalidGenes.join(', ')}`);
+                }
+                
+                // Use the setGeneSelection method which should now trigger reprocessing
+                console.log('Calling setGeneSelection with:', validGenes);
+                visualizer.setGeneSelection(validGenes);
+                
+                geneFilterApplied = true;
+                
+                // Update button states
+                const applyButton = document.getElementById('apply-gene-filter');
+                const clearButton = document.getElementById('clear-gene-filter');
+                
+                applyButton.style.background = '#27ae60'; // Green to indicate applied
+                applyButton.textContent = 'Gene Filter Applied';
+                clearButton.style.display = 'block';
+                
+                // Verify the filtering worked
+                setTimeout(() => {
+                    const newAvailableGenes = visualizer.getAvailableGenes();
+                    console.log('Genes after filtering:', newAvailableGenes);
+                    updateStatus(`Gene filter applied: ${validGenes.length} genes selected${invalidGenes.length > 0 ? ` (${invalidGenes.length} genes not found)` : ''}`);
+                    hideLoading();
+                }, 100);
+                
+            } catch (error) {
+                console.error('Error applying gene filter:', error);
+                updateStatus(`Error applying gene filter: ${error.message}`);
+                hideLoading();
+            }
+        }
+        
+        function clearGeneFilter() {
+            if (!visualizer) return;
+            
+            showLoading();
+            updateStatus('Clearing gene filter...');
+            
+            try {
+                // Clear the gene list
+                document.getElementById('gene-list').value = '';
+                
+                // Clear the gene selection using appropriate method
+                if (typeof visualizer.setGeneSelection === 'function') {
+                    visualizer.setGeneSelection([]);  // Empty array to show all genes
+                } else {
+                    // Fallback to config update
+                    const config = visualizer.getConfig();
+                    delete config.geneList;
+                    visualizer.update(config);
+                }
+                
+                geneFilterApplied = false;
+                
+                // Update button states
+                const applyButton = document.getElementById('apply-gene-filter');
+                const clearButton = document.getElementById('clear-gene-filter');
+                
+                applyButton.style.background = '#3498db';
+                applyButton.textContent = 'Apply Gene Filter';
+                clearButton.style.display = 'none';
+                
+                updateStatus('Gene filter cleared - showing all genes');
+                hideLoading();
+                
+            } catch (error) {
+                updateStatus(`Error clearing gene filter: ${error.message}`);
+                hideLoading();
+            }
+        }
+        
+        function showAvailableGenes() {
+            if (!visualizer) {
+                updateStatus('Please load data first');
+                return;
+            }
+            
+            try {
+                // Get all genes from the original dataset, not just currently filtered ones
+                const allGenes = visualizer.getAllGenes ? visualizer.getAllGenes() : visualizer.getAvailableGenes();
+                const currentGenes = visualizer.getAvailableGenes();
+                
+                if (allGenes.length === 0) {
+                    updateStatus('No genes available - please load data first');
+                    return;
+                }
+                
+                const geneTextarea = document.getElementById('gene-list');
+                
+                // If textarea is empty, populate with first 5 genes as example
+                if (!geneTextarea.value.trim()) {
+                    const exampleGenes = allGenes.slice(0, 5);
+                    geneTextarea.value = exampleGenes.join('\n');
+                    onGeneListChange(); // Update button states
+                }
+                
+                const statusMsg = `Total genes in dataset: ${allGenes.length}, Currently displayed: ${currentGenes.length}. First 10: ${allGenes.slice(0, 10).join(', ')}${allGenes.length > 10 ? `... and ${allGenes.length - 10} more` : ''}`;
+                updateStatus(statusMsg);
+                
+                // Also log all genes to console for debugging
+                console.log('All genes in dataset:', allGenes);
+                console.log('Currently displayed genes:', currentGenes);
+                
+            } catch (error) {
+                updateStatus(`Error getting available genes: ${error.message}`);
+            }
+        }
+
+        // Initialize on page load
+        initializeVisualizer();
+        updateStatus('Ready - Load data or use sample data to begin');
+    </script>
+</body>
+</html>
