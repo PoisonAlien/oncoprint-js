@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oncoprint.js - UMD Example</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #oncoprint-container {
+            width: 100%;
+            height: 600px;
+            border: 1px solid #ccc;
+            margin: 20px 0;
+        }
+        .controls {
+            margin: 20px 0;
+        }
+        button {
+            margin: 5px;
+            padding: 10px 15px;
+            cursor: pointer;
+        }
+        .file-input {
+            margin: 10px 0;
+        }
+        .info {
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .error {
+            color: red;
+            background: #ffe6e6;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .metadata-controls {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: #f9f9f9;
+        }
+        .metadata-controls h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        .metadata-selector label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        #metadata-fields {
+            width: 100%;
+            max-width: 400px;
+            margin-bottom: 10px;
+            padding: 5px;
+        }
+        .metadata-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .metadata-buttons button {
+            padding: 8px 16px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Oncoprint.js UMD Example</h1>
+    
+    <div class="info">
+        This example uses the UMD build of oncoprint.js and should work directly in the browser!
+    </div>
+    
+    <div class="file-input">
+        <label for="maf-file">Load MAF File:</label>
+        <input type="file" id="maf-file" accept=".maf,.tsv,.csv,.txt">
+    </div>
+    
+    <div class="file-input">
+        <label for="metadata-file">Load Metadata File (optional):</label>
+        <input type="file" id="metadata-file" accept=".tsv,.csv,.txt">
+    </div>
+    
+    <div class="metadata-controls" id="metadata-controls" style="display: none;">
+        <h3>Metadata Tracks</h3>
+        <div class="metadata-selector">
+            <label for="metadata-fields">Select metadata fields to display:</label>
+            <select id="metadata-fields" multiple size="5">
+            </select>
+            <div class="metadata-buttons">
+                <button onclick="updateMetadataTracks()">Update Tracks</button>
+                <button onclick="clearMetadataTracks()">Clear All</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="controls">
+        <button onclick="loadSampleData()">Load Sample Data</button>
+        <button onclick="loadSampleFiles()">Load Sample Files</button>
+        <button onclick="sortGenesByFrequency()">Sort Genes by Frequency</button>
+        <button onclick="sortSamplesByMutationLoad()">Sort Samples by Mutation Load</button>
+        <button onclick="exportSVG()">Export SVG</button>
+        <button onclick="exportPNG()">Export PNG</button>
+    </div>
+    
+    <div id="oncoprint-container"></div>
+    
+    <div id="info"></div>
+    <div id="error"></div>
+
+    <!-- D3.js -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    
+    <!-- Oncoprint UMD build -->
+    <script src="./oncoprint.umd.js"></script>
+    
+    <script>
+        let visualizer;
+        
+        // Check if library loaded
+        if (typeof Oncoprint === 'undefined') {
+            document.getElementById('error').innerHTML = 
+                '<div class="error">Failed to load Oncoprint library. Make sure the UMD file is available.</div>';
+        } else {
+            document.getElementById('info').innerHTML = 'Oncoprint library loaded successfully!';
+        }
+        
+        // Initialize visualizer
+        function initializeVisualizer() {
+            if (typeof Oncoprint === 'undefined') {
+                console.error('Oncoprint library not available');
+                return;
+            }
+            
+            const container = document.getElementById('oncoprint-container');
+            
+            visualizer = new Oncoprint.OncoprintVisualizer(container, {
+                cellWidth: 8,
+                cellHeight: 18,
+                geneLabels: true,
+                sampleLabels: false,
+                legend: true,
+                showPercentages: true,
+                tooltips: true,
+                sortGenes: 'frequency',
+                sortSamples: 'oncoprint'
+            });
+            
+            // Set up event listeners
+            visualizer.on('cellClick', (data) => {
+                console.log('Cell clicked:', data);
+                document.getElementById('info').innerHTML = `Cell clicked: Gene ${data.gene}, Sample ${data.sample}`;
+            });
+            
+            visualizer.on('geneClick', (data) => {
+                console.log('Gene clicked:', data);
+                document.getElementById('info').innerHTML = `Gene clicked: ${data.gene}`;
+            });
+            
+            visualizer.on('dataLoaded', (data) => {
+                console.log('Data loaded:', data);
+                const stats = visualizer.getMutationStats();
+                document.getElementById('info').innerHTML = 
+                    `Data loaded: ${stats.totalMutations} mutations across ${stats.totalGenes} genes and ${stats.totalSamples} samples`;
+            });
+            
+            visualizer.on('error', (error) => {
+                console.error('Visualizer error:', error);
+                document.getElementById('error').innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            });
+        }
+        
+        // Sample data generator
+        function createSampleData() {
+            const genes = [
+                'TP53', 'KRAS', 'PIK3CA', 'EGFR', 'BRAF', 'APC', 'PTEN', 'CDKN2A', 
+                'ATM', 'BRCA1', 'BRCA2', 'IDH1', 'SMAD4', 'MLH1', 'MSH2', 'VHL',
+                'NF1', 'RB1', 'NOTCH1', 'MYC', 'FLT3', 'NPM1', 'DNMT3A', 'TET2',
+                'IDH2', 'ASXL1', 'RUNX1', 'CEBPA', 'KIT', 'PTPN11', 'JAK2', 'CALR'
+            ];
+            const samples = Array.from({length: 100}, (_, i) => `Sample_${i + 1}`);
+            const variantTypes = [
+                'Missense_Mutation', 'Nonsense_Mutation', 'Frame_Shift_Del', 
+                'Frame_Shift_Ins', 'Splice_Site', 'In_Frame_Del', 'In_Frame_Ins'
+            ];
+            
+            const mafData = [];
+            
+            // Generate mutations with realistic frequency patterns
+            genes.forEach((gene, geneIndex) => {
+                // Create frequency gradient: first genes more frequently mutated
+                const baseFrequency = Math.max(0.05, (32 - geneIndex) / 32 * 0.4);
+                const numMutations = Math.floor(samples.length * baseFrequency);
+                const mutatedSamples = samples.sort(() => 0.5 - Math.random()).slice(0, numMutations);
+                
+                mutatedSamples.forEach(sample => {
+                    mafData.push({
+                        Hugo_Symbol: gene,
+                        Tumor_Sample_Barcode: sample,
+                        Variant_Classification: variantTypes[Math.floor(Math.random() * variantTypes.length)],
+                        Protein_Change: `p.${gene.charAt(0)}${Math.floor(Math.random() * 500) + 1}${String.fromCharCode(65 + Math.floor(Math.random() * 26))}`
+                    });
+                });
+            });
+            
+            return mafData;
+        }
+        
+        // Load sample files
+        async function loadSampleFiles() {
+            if (!visualizer) initializeVisualizer();
+            if (!visualizer) return;
+            
+            try {
+                // Load the sample MAF file
+                const response = await fetch('./sample-data/sample.maf');
+                const mafContent = await response.text();
+                const mafData = Oncoprint.MafParser.parseFromString(mafContent);
+                
+                await visualizer.loadMafData(mafData);
+                
+                // Try to load metadata
+                try {
+                    const metaResponse = await fetch('./sample-data/tcga_laml_annot.tsv');
+                    if (metaResponse.ok) {
+                        const metaContent = await metaResponse.text();
+                        const metaData = Oncoprint.MetadataParser.parseFromString(metaContent);
+                        
+                        await visualizer.loadMetadataData(metaData);
+                        populateMetadataSelector();
+                    }
+                } catch (metaError) {
+                    console.log('Metadata file not found, proceeding without metadata');
+                }
+                
+                visualizer.render();
+                document.getElementById('info').innerHTML = 'Sample files loaded successfully!';
+            } catch (error) {
+                console.error('Error loading sample files:', error);
+                document.getElementById('error').innerHTML = `<div class="error">Error loading sample files: ${error.message}</div>`;
+            }
+        }
+        
+        // Global functions
+        async function loadSampleData() {
+            if (!visualizer) initializeVisualizer();
+            if (!visualizer) return;
+            
+            const sampleData = createSampleData();
+            try {
+                await visualizer.loadMafData(sampleData);
+                visualizer.render();
+            } catch (error) {
+                console.error('Error loading sample data:', error);
+                document.getElementById('error').innerHTML = `<div class="error">Error loading data: ${error.message}</div>`;
+            }
+        }
+        
+        function sortGenesByFrequency() {
+            if (visualizer) {
+                visualizer.sortGenesByFrequency(true);
+                document.getElementById('info').innerHTML = 'Genes sorted by frequency';
+            }
+        }
+        
+        function sortSamplesByMutationLoad() {
+            if (visualizer) {
+                visualizer.sortSamplesByMutationLoad(true);
+                document.getElementById('info').innerHTML = 'Samples sorted by mutation load';
+            }
+        }
+        
+        function exportSVG() {
+            if (visualizer) {
+                try {
+                    const svg = visualizer.exportSVG();
+                    const blob = new Blob([svg], { type: 'image/svg+xml' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'oncoprint.svg';
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    document.getElementById('info').innerHTML = 'SVG exported successfully';
+                } catch (error) {
+                    console.error('Error exporting SVG:', error);
+                    document.getElementById('error').innerHTML = `<div class="error">Export error: ${error.message}</div>`;
+                }
+            }
+        }
+        
+        async function exportPNG() {
+            if (visualizer) {
+                try {
+                    const blob = await visualizer.exportPNG();
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'oncoprint.png';
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    document.getElementById('info').innerHTML = 'PNG exported successfully';
+                } catch (error) {
+                    console.error('Error exporting PNG:', error);
+                    document.getElementById('error').innerHTML = `<div class="error">PNG export error: ${error.message}</div>`;
+                }
+            }
+        }
+        
+        // Metadata management functions
+        function populateMetadataSelector() {
+            const select = document.getElementById('metadata-fields');
+            const controlsDiv = document.getElementById('metadata-controls');
+            
+            if (!visualizer) return;
+            
+            const availableFields = visualizer.getAvailableMetadataFields();
+            
+            if (availableFields.length > 0) {
+                // Clear existing options
+                select.innerHTML = '';
+                
+                // Add options for each metadata field
+                availableFields.forEach(field => {
+                    const option = document.createElement('option');
+                    option.value = field;
+                    option.textContent = field;
+                    select.appendChild(option);
+                });
+                
+                // Show the metadata controls
+                controlsDiv.style.display = 'block';
+                
+                document.getElementById('info').innerHTML += ' Metadata fields available for selection.';
+            } else {
+                controlsDiv.style.display = 'none';
+            }
+        }
+        
+        function updateMetadataTracks() {
+            if (!visualizer) return;
+            
+            const select = document.getElementById('metadata-fields');
+            const selectedFields = Array.from(select.selectedOptions).map(option => option.value);
+            
+            // Clear existing tracks
+            const currentTracks = visualizer.getMetadataConfig();
+            currentTracks.forEach(track => {
+                visualizer.removeMetadataTrack(track.field);
+            });
+            
+            // Add selected tracks
+            selectedFields.forEach((field, index) => {
+                visualizer.addMetadataTrack({
+                    field: field,
+                    label: field,
+                    type: 'auto',
+                    visible: true,
+                    order: index,
+                    height: 20
+                });
+            });
+            
+            document.getElementById('info').innerHTML = 
+                selectedFields.length > 0 
+                    ? `Metadata tracks updated: ${selectedFields.join(', ')}`
+                    : 'All metadata tracks cleared';
+        }
+        
+        function clearMetadataTracks() {
+            if (!visualizer) return;
+            
+            const currentTracks = visualizer.getMetadataConfig();
+            currentTracks.forEach(track => {
+                visualizer.removeMetadataTrack(track.field);
+            });
+            
+            // Clear selection
+            const select = document.getElementById('metadata-fields');
+            select.selectedIndex = -1;
+            
+            document.getElementById('info').innerHTML = 'All metadata tracks cleared';
+        }
+        
+        // File input handlers
+        document.getElementById('maf-file').addEventListener('change', async function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                if (!visualizer) initializeVisualizer();
+                if (!visualizer) return;
+                
+                try {
+                    const validation = await visualizer.loadMafFile(file);
+                    if (validation.isValid) {
+                        visualizer.render();
+                        document.getElementById('info').innerHTML = `MAF file loaded: ${file.name}`;
+                    } else {
+                        document.getElementById('error').innerHTML = 
+                            `<div class="error">Validation errors: ${validation.errors.map(e => e.message).join(', ')}</div>`;
+                    }
+                } catch (error) {
+                    console.error('Error loading MAF file:', error);
+                    document.getElementById('error').innerHTML = `<div class="error">Error loading MAF file: ${error.message}</div>`;
+                }
+            }
+        });
+        
+        document.getElementById('metadata-file').addEventListener('change', async function(event) {
+            const file = event.target.files[0];
+            if (file && visualizer) {
+                try {
+                    const validation = await visualizer.loadMetadataFile(file);
+                    if (validation.isValid) {
+                        visualizer.render();
+                        populateMetadataSelector();
+                        document.getElementById('info').innerHTML = `Metadata file loaded: ${file.name}`;
+                    } else {
+                        document.getElementById('error').innerHTML = 
+                            `<div class="error">Metadata validation errors: ${validation.errors.map(e => e.message).join(', ')}</div>`;
+                    }
+                } catch (error) {
+                    console.error('Error loading metadata file:', error);
+                    document.getElementById('error').innerHTML = `<div class="error">Error loading metadata file: ${error.message}</div>`;
+                }
+            }
+        });
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeVisualizer();
+        });
+    </script>
+</body>
+</html>
