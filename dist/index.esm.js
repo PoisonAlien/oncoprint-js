@@ -17,7 +17,7 @@ class MafParser {
         for (let i = 1; i < lines.length; i++) {
             const values = lines[i].split(delimiter);
             if (values.length !== headers.length) {
-                console.warn(`Line ${i + 1} has ${values.length} columns but expected ${headers.length}`);
+                // console.warn(`Line ${i + 1} has ${values.length} columns but expected ${headers.length}`);
                 continue;
             }
             const row = {};
@@ -113,7 +113,7 @@ class MafParser {
                 });
             }
         });
-        console.log(`Parsed ${data.length} mutations across ${genes.size} genes and ${samples.size} samples`);
+        // console.log(`Parsed ${data.length} mutations across ${genes.size} genes and ${samples.size} samples`);
         return {
             isValid: errors.length === 0,
             errors,
@@ -166,7 +166,7 @@ class MetadataParser {
         for (let i = 1; i < lines.length; i++) {
             const values = lines[i].split(delimiter);
             if (values.length !== headers.length) {
-                console.warn(`Line ${i + 1} has ${values.length} columns but expected ${headers.length}`);
+                // console.warn(`Line ${i + 1} has ${values.length} columns but expected ${headers.length}`);
                 continue;
             }
             const row = {};
@@ -261,7 +261,7 @@ class MetadataParser {
                 });
             }
         }
-        console.log(`Parsed metadata for ${data.length} samples`);
+        // console.log(`Parsed metadata for ${data.length} samples`);
         return {
             isValid: errors.length === 0,
             errors,
@@ -477,7 +477,7 @@ class DataProcessor {
     }
     static sortSamplesByMetadata(data, field, ascending = true) {
         if (!data.metadata.fields.includes(field)) {
-            console.warn(`Metadata field '${field}' not found`);
+            // console.warn(`Metadata field '${field}' not found`);
             return data.samples;
         }
         return [...data.samples].sort((a, b) => {
@@ -563,7 +563,7 @@ class DataProcessor {
     static applySplitBy(data, splitField, sortMethod = 'oncoprint', customSampleOrder, geneOrder) {
         // Check if the split field exists in metadata
         if (!data.metadata.fields.includes(splitField)) {
-            console.warn(`Split field '${splitField}' not found in metadata. Ignoring split.`);
+            // console.warn(`Split field '${splitField}' not found in metadata. Ignoring split.`);
             return data;
         }
         // Group samples by the split field value
@@ -943,7 +943,7 @@ class OncoprintRenderer extends EventEmitter {
             const ctx = canvas.getContext('2d');
             const img = new Image();
             img.onload = () => {
-                console.log(`Export SVG dimensions: ${img.width} x ${img.height}`);
+                // console.log(`Export SVG dimensions: ${img.width} x ${img.height}`);
                 // For export, use the full image dimensions
                 let sourceX = 0, sourceY = 0, sourceWidth = img.width, sourceHeight = img.height;
                 if (opts.cropToContent && opts.padding) {
@@ -956,7 +956,7 @@ class OncoprintRenderer extends EventEmitter {
                 // Apply scaling
                 const finalWidth = Math.round(sourceWidth * opts.scale);
                 const finalHeight = Math.round(sourceHeight * opts.scale);
-                console.log(`Final export dimensions: ${finalWidth} x ${finalHeight} (scale: ${opts.scale})`);
+                // console.log(`Final export dimensions: ${finalWidth} x ${finalHeight} (scale: ${opts.scale})`);
                 // Set canvas to final size
                 canvas.width = finalWidth;
                 canvas.height = finalHeight;
@@ -969,7 +969,7 @@ class OncoprintRenderer extends EventEmitter {
                 ctx.drawImage(img, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, finalWidth, finalHeight);
                 canvas.toBlob((blob) => {
                     if (blob) {
-                        console.log(`PNG export successful: ${blob.size} bytes`);
+                        // console.log(`PNG export successful: ${blob.size} bytes`);
                         resolve(blob);
                     }
                     else {
@@ -981,7 +981,7 @@ class OncoprintRenderer extends EventEmitter {
                 console.error('Image loading failed:', error);
                 reject(new Error('Failed to load SVG as image'));
             };
-            console.log('Starting PNG export with full-size SVG');
+            // console.log('Starting PNG export with full-size SVG');
             img.src = 'data:image/svg+xml;base64,' + btoa(exportSVG);
         });
     }
@@ -1141,14 +1141,14 @@ class OncoprintRenderer extends EventEmitter {
             .style('font-family', 'Arial, sans-serif')
             .style('font-size', '12px')
             .style('display', 'block');
-        console.log(`Created SVG with dimensions: ${this.dimensions.width} x ${this.dimensions.height}`);
-        console.log(`Cell dimensions: ${this.dimensions.cellWidth} x ${this.dimensions.cellHeight}`);
-        console.log(`Container size: ${this.container.getBoundingClientRect().width} x ${this.container.getBoundingClientRect().height}`);
+        // console.log(`Created SVG with dimensions: ${this.dimensions.width} x ${this.dimensions.height}`);
+        // console.log(`Cell dimensions: ${this.dimensions.cellWidth} x ${this.dimensions.cellHeight}`);
+        // console.log(`Container size: ${this.container.getBoundingClientRect().width} x ${this.container.getBoundingClientRect().height}`);
         // Log matrix dimensions for debugging
         if (this.data) {
-            const matrixWidth = this.sampleOrder.length * this.dimensions.cellWidth;
-            const matrixHeight = this.geneOrder.length * this.dimensions.cellHeight;
-            console.log(`Matrix dimensions: ${matrixWidth} x ${matrixHeight} (${this.sampleOrder.length} samples x ${this.geneOrder.length} genes)`);
+            this.sampleOrder.length * this.dimensions.cellWidth;
+            this.geneOrder.length * this.dimensions.cellHeight;
+            // console.log(`Matrix dimensions: ${matrixWidth} x ${matrixHeight} (${this.sampleOrder.length} samples x ${this.geneOrder.length} genes)`);
         }
     }
     renderMainMatrix() {
@@ -1853,11 +1853,11 @@ class OncoprintRenderer extends EventEmitter {
             if (scale < 1) {
                 cellWidth = Math.max(1, cellWidth * scale); // Minimum cell width of 1px
                 cellHeight = Math.max(1, cellHeight * scale); // Minimum cell height of 1px
-                console.log(`Scaling visualization by ${scale.toFixed(2)} to fit container`);
-                console.log(`Container: ${availableWidth} x ${availableHeight}, Required: ${requiredWidth} x ${requiredHeight}`);
-                console.log(`Original cell size: ${this.config.cellWidth || 10} x ${this.config.cellHeight || 20}`);
-                console.log(`Scaled cell size: ${cellWidth} x ${cellHeight}`);
-                console.log(`Sample count: ${this.sampleOrder.length}, Gene count: ${this.geneOrder.length}`);
+                // console.log(`Scaling visualization by ${scale.toFixed(2)} to fit container`);
+                // console.log(`Container: ${availableWidth} x ${availableHeight}, Required: ${requiredWidth} x ${requiredHeight}`);
+                // console.log(`Original cell size: ${this.config.cellWidth || 10} x ${this.config.cellHeight || 20}`);
+                // console.log(`Scaled cell size: ${cellWidth} x ${cellHeight}`);
+                // console.log(`Sample count: ${this.sampleOrder.length}, Gene count: ${this.geneOrder.length}`);
             }
             // Recalculate with scaled cell dimensions
             const scaledMatrixWidth = this.data?.sampleGroups && this.config.splitBy ?
@@ -2059,13 +2059,23 @@ class OncoprintVisualizer extends EventEmitter {
         }
     }
     async loadMafData(data, cohortInfo) {
+        // console.log('=== OncoprintVisualizer.loadMafData ===');
+        // console.log('Input data:', data);
+        // console.log('Input data length:', data ? data.length : 'null/undefined');
+        // console.log('Cohort info:', cohortInfo);
         try {
             this.rawMafData = [...data]; // Store original data
+            // console.log('Raw MAF data stored, length:', this.rawMafData.length);
             this.cohortInfo = cohortInfo; // Store cohort information
+            // console.log('About to call reprocessData...');
             this.reprocessData();
+            // console.log('reprocessData completed, emitting dataLoaded...');
             this.emit('dataLoaded', this.processedData);
+            // console.log('=== loadMafData completed successfully ===');
         }
         catch (error) {
+            console.error('Error in loadMafData:', error);
+            console.error('Error stack:', error instanceof Error ? error.stack : 'Unknown error');
             this.emit('error', error);
             throw error;
         }
@@ -2109,10 +2119,33 @@ class OncoprintVisualizer extends EventEmitter {
     }
     // Rendering methods
     render() {
+        // console.log('=== OncoprintVisualizer.render() called ===');
+        // console.log('this.processedData exists:', !!this.processedData);
+        // console.log('this.rawMafData length:', this.rawMafData.length);
+        // console.log('this.rawMetadataData length:', this.rawMetadataData.length);
         if (!this.processedData) {
-            throw new Error('No data available for rendering. Load MAF data first.');
+            console.error('❌ CRITICAL: processedData is null!');
+            console.error('Raw MAF data:', this.rawMafData.slice(0, 2));
+            console.error('This means reprocessData() either failed or was never called');
+            // Instead of crashing, let's try to reprocess the data
+            if (this.rawMafData.length > 0) {
+                // console.log('🔄 Attempting to reprocess data before rendering...');
+                try {
+                    this.reprocessData();
+                    // console.log('✅ Data reprocessed successfully');
+                }
+                catch (error) {
+                    console.error('❌ Failed to reprocess data:', error);
+                    throw new Error(`Failed to process MAF data for rendering: ${error instanceof Error ? error.message : String(error)}`);
+                }
+            }
+            else {
+                throw new Error('No MAF data available for rendering. Load MAF data first.');
+            }
         }
+        // console.log('✅ About to call renderer.render()');
         this.renderer.render();
+        // console.log('✅ Renderer.render() completed successfully');
     }
     update(config) {
         if (config) {
@@ -2308,16 +2341,32 @@ class OncoprintVisualizer extends EventEmitter {
         if (this.rawMafData.length === 0) {
             throw new Error('No MAF data available for reprocessing');
         }
+        // console.log('=== OncoprintVisualizer.reprocessData ===');
+        // console.log('Raw MAF data length:', this.rawMafData.length);
+        // console.log('Raw MAF data sample:', this.rawMafData.slice(0, 2));
         const filteredData = this.applyDataFilters(this.rawMafData);
+        // console.log('Filtered data length:', filteredData.length);
         const metadataToUse = this.rawMetadataData.length > 0 ? this.rawMetadataData : undefined;
+        // console.log('Metadata to use:', metadataToUse ? metadataToUse.length : 'none');
         // Pass cohort information for percentage calculation and missing sample handling
-        this.processedData = DataProcessor.processData(filteredData, metadataToUse, this.cohortInfo);
+        try {
+            // console.log('Calling DataProcessor.processData...');
+            this.processedData = DataProcessor.processData(filteredData, metadataToUse, this.cohortInfo);
+            // console.log('DataProcessor.processData completed successfully');
+            // console.log('Processed data:', this.processedData);
+        }
+        catch (error) {
+            console.error('Error in DataProcessor.processData:', error);
+            throw error;
+        }
         // Apply split grouping if configured
         if (this.config.splitBy?.field) {
             this.processedData = DataProcessor.applySplitBy(this.processedData, this.config.splitBy.field, this.config.sortSamples, this.config.customSampleOrder, undefined // geneOrder will be determined later in updateOrdering
             );
         }
+        // console.log('Setting processed data to renderer...');
         this.renderer.setData(this.processedData);
+        // console.log('=== reprocessData completed ===');
     }
     reconstructMafData() {
         if (!this.processedData)
@@ -2371,15 +2420,25 @@ class OncoprintVisualizer extends EventEmitter {
     }
 }
 
-const Oncoprint = forwardRef(({ mafData, metadataData, mafFile, metadataFile, config = {}, width, height, onGeneClick, onSampleClick, onCellClick, onDataLoaded, onError, onRenderComplete, className, style }, ref) => {
+// Create a simpler version without forwardRef for debugging
+const OncoprintSimple = ({ mafData, metadataData, mafFile, metadataFile, config = {}, width, height, onGeneClick, onSampleClick, onCellClick, onDataLoaded, onError, onRenderComplete, className, style }) => {
     const containerRef = useRef(null);
     const visualizerRef = useRef(null);
+    // console.log('=== OncoprintSimple Component Rendering ===');
+    // console.log('Received mafData:', mafData ? `${mafData.length} mutations` : 'null/undefined');
+    // console.log('Received metadataData:', metadataData ? `${metadataData.length} samples` : 'null/undefined');
     // Initialize visualizer
     useEffect(() => {
-        if (!containerRef.current)
+        // console.log('=== OncoprintSimple Initialize useEffect ===');
+        // console.log('containerRef.current:', !!containerRef.current);
+        if (!containerRef.current) {
+            // console.log('No container, skipping visualizer initialization');
             return;
+        }
+        // console.log('Creating OncoprintVisualizer...');
         const visualizer = new OncoprintVisualizer(containerRef.current, config);
         visualizerRef.current = visualizer;
+        // console.log('OncoprintVisualizer created and stored in ref');
         // Set up event listeners
         if (onGeneClick) {
             visualizer.on('geneClick', (data) => onGeneClick(data.gene));
@@ -2436,13 +2495,150 @@ const Oncoprint = forwardRef(({ mafData, metadataData, mafFile, metadataFile, co
     }, [mafFile, onError, onRenderComplete]);
     // Load MAF data directly
     useEffect(() => {
+        // console.log('=== OncoprintSimple useEffect for mafData ===');
+        // console.log('mafData:', mafData);
+        // console.log('mafData length:', mafData ? mafData.length : 'null/undefined');
+        // console.log('visualizerRef.current:', !!visualizerRef.current);
         if (mafData && visualizerRef.current) {
+            // console.log('Calling visualizerRef.current.loadMafData...');
             visualizerRef.current.loadMafData(mafData)
+                .then(() => {
+                // console.log('loadMafData promise resolved, calling render...');
+                visualizerRef.current?.render();
+                onRenderComplete?.();
+            })
+                .catch((error) => {
+                console.error('loadMafData promise rejected:', error);
+                onError?.(error);
+            });
+        }
+    }, [mafData, onError, onRenderComplete]);
+    // Load metadata from file
+    useEffect(() => {
+        if (metadataFile && visualizerRef.current) {
+            visualizerRef.current.loadMetadataFile(metadataFile)
+                .then((validation) => {
+                if (validation.isValid) {
+                    visualizerRef.current?.render();
+                    onRenderComplete?.();
+                }
+                else {
+                    const error = new Error(validation.errors[0]?.message || 'Metadata file validation failed');
+                    onError?.(error);
+                }
+            })
+                .catch((error) => {
+                onError?.(error);
+            });
+        }
+    }, [metadataFile, onError, onRenderComplete]);
+    // Load metadata directly
+    useEffect(() => {
+        if (metadataData && visualizerRef.current) {
+            visualizerRef.current.loadMetadataData(metadataData)
                 .then(() => {
                 visualizerRef.current?.render();
                 onRenderComplete?.();
             })
                 .catch((error) => {
+                onError?.(error);
+            });
+        }
+    }, [metadataData, onError, onRenderComplete]);
+    return (jsx("div", { ref: containerRef, className: className, style: {
+            width: width || '100%',
+            height: height || '100%',
+            ...style
+        } }));
+};
+const Oncoprint = forwardRef(({ mafData, metadataData, mafFile, metadataFile, config = {}, width, height, onGeneClick, onSampleClick, onCellClick, onDataLoaded, onError, onRenderComplete, className, style }, ref) => {
+    const containerRef = useRef(null);
+    const visualizerRef = useRef(null);
+    // console.log('=== Oncoprint Component Rendering ===');
+    // console.log('Received mafData:', mafData ? `${mafData.length} mutations` : 'null/undefined');
+    // console.log('Received metadataData:', metadataData ? `${metadataData.length} samples` : 'null/undefined');
+    // Initialize visualizer
+    useEffect(() => {
+        // console.log('=== Oncoprint Initialize useEffect ===');
+        // console.log('containerRef.current:', !!containerRef.current);
+        if (!containerRef.current) {
+            // console.log('No container, skipping visualizer initialization');
+            return;
+        }
+        // console.log('Creating OncoprintVisualizer...');
+        const visualizer = new OncoprintVisualizer(containerRef.current, config);
+        visualizerRef.current = visualizer;
+        // console.log('OncoprintVisualizer created and stored in ref');
+        // Set up event listeners
+        if (onGeneClick) {
+            visualizer.on('geneClick', (data) => onGeneClick(data.gene));
+        }
+        if (onSampleClick) {
+            visualizer.on('sampleClick', (data) => onSampleClick(data.sample));
+        }
+        if (onCellClick) {
+            visualizer.on('cellClick', (data) => {
+                const mutation = data.variant ? { variantType: data.variant } : undefined;
+                onCellClick(data.gene, data.sample, mutation);
+            });
+        }
+        if (onDataLoaded) {
+            visualizer.on('dataLoaded', onDataLoaded);
+        }
+        if (onError) {
+            visualizer.on('error', onError);
+        }
+        return () => {
+            visualizer.destroy();
+        };
+    }, []);
+    // Handle config updates
+    useEffect(() => {
+        if (visualizerRef.current) {
+            visualizerRef.current.setConfig(config);
+        }
+    }, [config]);
+    // Handle resize
+    useEffect(() => {
+        if (visualizerRef.current && (width || height)) {
+            visualizerRef.current.resize(width, height);
+        }
+    }, [width, height]);
+    // Load MAF data from file
+    useEffect(() => {
+        if (mafFile && visualizerRef.current) {
+            visualizerRef.current.loadMafFile(mafFile)
+                .then((validation) => {
+                if (validation.isValid) {
+                    visualizerRef.current?.render();
+                    onRenderComplete?.();
+                }
+                else {
+                    const error = new Error(validation.errors[0]?.message || 'MAF file validation failed');
+                    onError?.(error);
+                }
+            })
+                .catch((error) => {
+                onError?.(error);
+            });
+        }
+    }, [mafFile, onError, onRenderComplete]);
+    // Load MAF data directly
+    useEffect(() => {
+        // console.log('=== React Oncoprint useEffect for mafData ===');
+        // console.log('mafData:', mafData);
+        // console.log('mafData length:', mafData ? mafData.length : 'null/undefined');
+        // console.log('visualizerRef.current:', !!visualizerRef.current);
+        if (mafData && visualizerRef.current) {
+            // console.log('Calling visualizerRef.current.loadMafData...');
+            visualizerRef.current.loadMafData(mafData)
+                .then(() => {
+                // console.log('loadMafData promise resolved, calling render...');
+                visualizerRef.current?.render();
+                onRenderComplete?.();
+            })
+                .catch((error) => {
+                console.error('loadMafData promise rejected:', error);
                 onError?.(error);
             });
         }
@@ -2752,5 +2948,5 @@ function useOncoprint({ container, config = {}, autoRender = true } = {}) {
     };
 }
 
-export { DEFAULT_VARIANT_COLORS, DataProcessor, EventEmitter, MafParser, MetadataParser, Oncoprint, OncoprintRenderer, OncoprintVisualizer, VariantColorManager, useOncoprint };
+export { DEFAULT_VARIANT_COLORS, DataProcessor, EventEmitter, MafParser, MetadataParser, Oncoprint, OncoprintRenderer, OncoprintSimple, OncoprintVisualizer, VariantColorManager, useOncoprint };
 //# sourceMappingURL=index.esm.js.map

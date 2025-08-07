@@ -416,6 +416,7 @@ interface OncoprintRef {
     render: () => void;
     update: (config?: Partial<OncoprintConfig>) => void;
 }
+declare const OncoprintSimple: React.FC<OncoprintProps>;
 declare const Oncoprint: React.ForwardRefExoticComponent<OncoprintProps & React.RefAttributes<OncoprintRef>>;
 
 interface UseOncoprintOptions {
@@ -453,5 +454,5 @@ interface UseOncoprintReturn {
 }
 declare function useOncoprint({ container, config, autoRender }?: UseOncoprintOptions): UseOncoprintReturn;
 
-export { DEFAULT_VARIANT_COLORS, DataProcessor, EventEmitter, MafParser, MetadataParser, Oncoprint, OncoprintRenderer, OncoprintVisualizer, VariantColorManager, useOncoprint };
+export { DEFAULT_VARIANT_COLORS, DataProcessor, EventEmitter, MafParser, MetadataParser, Oncoprint, OncoprintRenderer, OncoprintSimple, OncoprintVisualizer, VariantColorManager, useOncoprint };
 export type { CohortInfo, EventCallback, EventType, FieldTypeMap, GeneSet, MafData, MetadataConfig, MetadataRow, MetadataTrackConfig, MutationStats, OncoprintConfig, OncoprintEvent, OncoprintProps, OncoprintRef, ProcessedData, ProcessedMetadata, ProcessedMutation, RendererDimensions, SampleGroup, UseOncoprintOptions, UseOncoprintReturn, ValidationError, ValidationResult, ValidationWarning };

@@ -36,4 +36,5 @@ export interface OncoprintRef {
     render: () => void;
     update: (config?: Partial<OncoprintConfig>) => void;
 }
+export declare const OncoprintSimple: React.FC<OncoprintProps>;
 export declare const Oncoprint: React.ForwardRefExoticComponent<OncoprintProps & React.RefAttributes<OncoprintRef>>;
