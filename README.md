@@ -1,6 +1,6 @@
 # Oncoprint.js
 
-<div align="center">
+<div align="left">
 
 [![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-%230074c1.svg)](http://www.typescriptlang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -472,34 +472,3 @@ We welcome contributions! Please read our [contributing guidelines](CONTRIBUTING
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Citation
-
-If you use Oncoprint.js in your research, please cite:
-
-```bibtex
-@software{oncoprint-js,
-  title = {Oncoprint.js: A JavaScript library for interactive cancer genomics visualizations},
-  author = {Oncoprint.js Contributors},
-  url = {https://github.com/poisonalien/oncoprint-js},
-  year = {2024}
-}
-```
-
-## Acknowledgments
-
-- [D3.js](https://d3js.org/) - Powerful data visualization library
-- [cBioPortal](https://www.cbioportal.org/) - Inspiration and cancer genomics expertise
-- [React](https://reactjs.org/) - Component framework integration
-- All our [contributors](https://github.com/poisonalien/oncoprint-js/contributors)
-
-## Support
-
-- [Documentation](https://github.com/poisonalien/oncoprint-js/wiki)
-- [Issue Tracker](https://github.com/poisonalien/oncoprint-js/issues)
-- [Discussions](https://github.com/poisonalien/oncoprint-js/discussions)
-
----
-
-<div align="center">
-Made by the Oncoprint.js team
-</div>
