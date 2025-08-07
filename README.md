@@ -8,6 +8,8 @@
 
 **A comprehensive JavaScript/TypeScript library for creating interactive oncoprint visualizations from MAF files and metadata.**
 
+> 🧪 **Beta Release** - This library is in beta. Core functionality is stable and well-tested, but the API may evolve based on user feedback. Perfect for early adopters and testing!
+
 </div>
 
 ## Features
