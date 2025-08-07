@@ -28,7 +28,13 @@
 ## Installation
 
 ```bash
-npm install oncoprint-js
+npm install @poisonalien/oncoprint-js
+```
+
+For beta releases:
+
+```bash
+npm install @poisonalien/oncoprint-js@beta
 ```
 
 For React usage, ensure you have React as a peer dependency:
@@ -42,7 +48,7 @@ npm install react react-dom
 ### Vanilla JavaScript
 
 ```javascript
-import { OncoprintVisualizer } from 'oncoprint-js';
+import { OncoprintVisualizer } from '@poisonalien/oncoprint-js';
 
 // Create container element
 const container = document.getElementById('oncoprint-container');
@@ -64,7 +70,7 @@ visualizer.render();
 
 ```jsx
 import React from 'react';
-import { Oncoprint } from 'oncoprint-js';
+import { Oncoprint } from '@poisonalien/oncoprint-js';
 
 function MyOncoprint() {
   const handleCellClick = (gene, sample, mutation) => {
@@ -94,7 +100,7 @@ function MyOncoprint() {
 
 ```jsx
 import React, { useRef } from 'react';
-import { useOncoprint } from 'oncoprint-js';
+import { useOncoprint } from '@poisonalien/oncoprint-js';
 
 function MyAdvancedOncoprint() {
   const containerRef = useRef(null);
@@ -238,7 +244,7 @@ interface MetadataRow {
     <div id="oncoprint-container" style="width: 100%; height: 600px;"></div>
     
     <script type="module">
-        import { OncoprintVisualizer } from 'path/to/oncoprint-js';
+        import { OncoprintVisualizer } from '@poisonalien/oncoprint-js';
         
         const container = document.getElementById('oncoprint-container');
         const visualizer = new OncoprintVisualizer(container);
@@ -264,7 +270,7 @@ interface MetadataRow {
 
 ```jsx
 import React, { useState, useRef } from 'react';
-import { Oncoprint } from 'oncoprint-js';
+import { Oncoprint } from '@poisonalien/oncoprint-js';
 
 function AdvancedOncoprintExample() {
   const [selectedGenes, setSelectedGenes] = useState([]);
