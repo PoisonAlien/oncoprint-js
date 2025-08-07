@@ -8,7 +8,7 @@
 
 **A comprehensive JavaScript/TypeScript library for creating interactive oncoprint visualizations from MAF files and metadata.**
 
-> 🧪 **Beta Release** - This library is in beta. Core functionality is stable and well-tested, but the API may evolve based on user feedback. Perfect for early adopters and testing!
+> **Beta Release** - This library is in beta. Core functionality is stable and well-tested, but the API may evolve based on user feedback.
 
 </div>
 
@@ -359,51 +359,6 @@ Default color scheme for common mutation types:
 - **In_Frame_Ins**: Purple (#8e44ad)
 
 Unknown mutation types are automatically assigned colors from a predefined palette.
-
-## Browser Support
-
-- Chrome 90+
-- Firefox 88+
-- Safari 14+
-- Edge 90+
-
-## Contributing
-
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
-
-## License
-
-MIT License - see [LICENSE](LICENSE) file for details.
-
-## Citation
-
-If you use Oncoprint.js in your research, please cite:
-
-```
-Oncoprint.js: A JavaScript library for interactive oncology data visualization
-```
-
-## Support
-- [Issue Tracker](https://github.com/poisonalien/oncoprint-js/issues)
-
-## Quick Links
-
-- **[Live Demo](https://poisonalien.github.io/oncoprint-js/)** - Try the interactive configurator
-- **[Examples](./examples)** - Complete usage examples
-
-## Live Demo
-
-The live demo is automatically deployed to GitHub Pages when code is pushed to the main branch. The deployment process:
-
-1. **Automated Deployment**: GitHub Actions workflow builds the library and deploys examples
-2. **URL**: [https://poisonalien.github.io/oncoprint-js/](https://poisonalien.github.io/oncoprint-js/)
-3. **Contents**: Interactive oncoprint configurator and basic examples
-4. **Updates**: Automatically updates with each release
-
-To enable the live demo for your repository:
-1. Enable GitHub Pages in repository settings
-2. Set source to "GitHub Actions"
-3. Push to main branch to trigger deployment
 
 ## Development
 
