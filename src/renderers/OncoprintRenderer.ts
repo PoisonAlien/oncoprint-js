@@ -369,11 +369,11 @@ export class OncoprintRenderer extends EventEmitter {
     // console.log(`Container size: ${this.container.getBoundingClientRect().width} x ${this.container.getBoundingClientRect().height}`);
     
     // Log matrix dimensions for debugging
-    if (this.data) {
-      const matrixWidth = this.sampleOrder.length * this.dimensions.cellWidth;
-      const matrixHeight = this.geneOrder.length * this.dimensions.cellHeight;
-      // console.log(`Matrix dimensions: ${matrixWidth} x ${matrixHeight} (${this.sampleOrder.length} samples x ${this.geneOrder.length} genes)`);
-    }
+    // if (this.data) {
+    //   const matrixWidth = this.sampleOrder.length * this.dimensions.cellWidth;
+    //   const matrixHeight = this.geneOrder.length * this.dimensions.cellHeight;
+    //   // console.log(`Matrix dimensions: ${matrixWidth} x ${matrixHeight} (${this.sampleOrder.length} samples x ${this.geneOrder.length} genes)`);
+    // }
   }
 
   private renderMainMatrix(): void {
