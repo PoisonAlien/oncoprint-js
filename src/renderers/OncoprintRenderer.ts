@@ -117,7 +117,7 @@ export class OncoprintRenderer extends EventEmitter {
       const img = new Image();
 
       img.onload = () => {
-        console.log(`Export SVG dimensions: ${img.width} x ${img.height}`);
+        // console.log(`Export SVG dimensions: ${img.width} x ${img.height}`);
         
         // For export, use the full image dimensions
         let sourceX = 0, sourceY = 0, sourceWidth = img.width, sourceHeight = img.height;
@@ -134,7 +134,7 @@ export class OncoprintRenderer extends EventEmitter {
         const finalWidth = Math.round(sourceWidth * opts.scale);
         const finalHeight = Math.round(sourceHeight * opts.scale);
         
-        console.log(`Final export dimensions: ${finalWidth} x ${finalHeight} (scale: ${opts.scale})`);
+        // console.log(`Final export dimensions: ${finalWidth} x ${finalHeight} (scale: ${opts.scale})`);
         
         // Set canvas to final size
         canvas.width = finalWidth;
@@ -155,7 +155,7 @@ export class OncoprintRenderer extends EventEmitter {
         
         canvas.toBlob((blob) => {
           if (blob) {
-            console.log(`PNG export successful: ${blob.size} bytes`);
+            // console.log(`PNG export successful: ${blob.size} bytes`);
             resolve(blob);
           } else {
             reject(new Error('Failed to create blob'));
@@ -168,7 +168,7 @@ export class OncoprintRenderer extends EventEmitter {
         reject(new Error('Failed to load SVG as image'));
       };
       
-      console.log('Starting PNG export with full-size SVG');
+      // console.log('Starting PNG export with full-size SVG');
       img.src = 'data:image/svg+xml;base64,' + btoa(exportSVG);
     });
   }
@@ -364,15 +364,15 @@ export class OncoprintRenderer extends EventEmitter {
       .style('font-size', '12px')
       .style('display', 'block');
       
-    console.log(`Created SVG with dimensions: ${this.dimensions.width} x ${this.dimensions.height}`);
-    console.log(`Cell dimensions: ${this.dimensions.cellWidth} x ${this.dimensions.cellHeight}`);
-    console.log(`Container size: ${this.container.getBoundingClientRect().width} x ${this.container.getBoundingClientRect().height}`);
+    // console.log(`Created SVG with dimensions: ${this.dimensions.width} x ${this.dimensions.height}`);
+    // console.log(`Cell dimensions: ${this.dimensions.cellWidth} x ${this.dimensions.cellHeight}`);
+    // console.log(`Container size: ${this.container.getBoundingClientRect().width} x ${this.container.getBoundingClientRect().height}`);
     
     // Log matrix dimensions for debugging
     if (this.data) {
       const matrixWidth = this.sampleOrder.length * this.dimensions.cellWidth;
       const matrixHeight = this.geneOrder.length * this.dimensions.cellHeight;
-      console.log(`Matrix dimensions: ${matrixWidth} x ${matrixHeight} (${this.sampleOrder.length} samples x ${this.geneOrder.length} genes)`);
+      // console.log(`Matrix dimensions: ${matrixWidth} x ${matrixHeight} (${this.sampleOrder.length} samples x ${this.geneOrder.length} genes)`);
     }
   }
 
@@ -1162,11 +1162,11 @@ export class OncoprintRenderer extends EventEmitter {
         cellWidth = Math.max(1, cellWidth * scale); // Minimum cell width of 1px
         cellHeight = Math.max(1, cellHeight * scale); // Minimum cell height of 1px
         
-        console.log(`Scaling visualization by ${scale.toFixed(2)} to fit container`);
-        console.log(`Container: ${availableWidth} x ${availableHeight}, Required: ${requiredWidth} x ${requiredHeight}`);
-        console.log(`Original cell size: ${this.config.cellWidth || 10} x ${this.config.cellHeight || 20}`);
-        console.log(`Scaled cell size: ${cellWidth} x ${cellHeight}`);
-        console.log(`Sample count: ${this.sampleOrder.length}, Gene count: ${this.geneOrder.length}`);
+        // console.log(`Scaling visualization by ${scale.toFixed(2)} to fit container`);
+        // console.log(`Container: ${availableWidth} x ${availableHeight}, Required: ${requiredWidth} x ${requiredHeight}`);
+        // console.log(`Original cell size: ${this.config.cellWidth || 10} x ${this.config.cellHeight || 20}`);
+        // console.log(`Scaled cell size: ${cellWidth} x ${cellHeight}`);
+        // console.log(`Sample count: ${this.sampleOrder.length}, Gene count: ${this.geneOrder.length}`);
       }
       
       // Recalculate with scaled cell dimensions

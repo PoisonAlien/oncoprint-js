@@ -233,7 +233,7 @@ export class DataProcessor {
     ascending: boolean = true
   ): string[] {
     if (!data.metadata.fields.includes(field)) {
-      console.warn(`Metadata field '${field}' not found`);
+      // console.warn(`Metadata field '${field}' not found`);
       return data.samples;
     }
 
@@ -336,7 +336,7 @@ export class DataProcessor {
   ): ProcessedData {
     // Check if the split field exists in metadata
     if (!data.metadata.fields.includes(splitField)) {
-      console.warn(`Split field '${splitField}' not found in metadata. Ignoring split.`);
+      // console.warn(`Split field '${splitField}' not found in metadata. Ignoring split.`);
       return data;
     }
 

@@ -7,6 +7,7 @@ export * from './renderers';
 
 // React components (optional peer dependency)
 export * from './components';
+export { OncoprintSimple } from './components/Oncoprint';
 
 // Utilities
 export * from './utils';

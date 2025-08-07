@@ -55,12 +55,26 @@ export class OncoprintVisualizer extends EventEmitter {
   }
 
   async loadMafData(data: MafData[], cohortInfo?: CohortInfo): Promise<void> {
+    // console.log('=== OncoprintVisualizer.loadMafData ===');
+    // console.log('Input data:', data);
+    // console.log('Input data length:', data ? data.length : 'null/undefined');
+    // console.log('Cohort info:', cohortInfo);
+    
     try {
       this.rawMafData = [...data]; // Store original data
+      // console.log('Raw MAF data stored, length:', this.rawMafData.length);
+      
       this.cohortInfo = cohortInfo; // Store cohort information
+      // console.log('About to call reprocessData...');
+      
       this.reprocessData();
+      // console.log('reprocessData completed, emitting dataLoaded...');
+      
       this.emit('dataLoaded', this.processedData);
+      // console.log('=== loadMafData completed successfully ===');
     } catch (error) {
+      console.error('Error in loadMafData:', error);
+      console.error('Error stack:', error instanceof Error ? error.stack : 'Unknown error');
       this.emit('error', error);
       throw error;
     }
@@ -108,10 +122,34 @@ export class OncoprintVisualizer extends EventEmitter {
 
   // Rendering methods
   render(): void {
+    // console.log('=== OncoprintVisualizer.render() called ===');
+    // console.log('this.processedData exists:', !!this.processedData);
+    // console.log('this.rawMafData length:', this.rawMafData.length);
+    // console.log('this.rawMetadataData length:', this.rawMetadataData.length);
+    
     if (!this.processedData) {
-      throw new Error('No data available for rendering. Load MAF data first.');
+      console.error('❌ CRITICAL: processedData is null!');
+      console.error('Raw MAF data:', this.rawMafData.slice(0, 2));
+      console.error('This means reprocessData() either failed or was never called');
+      
+      // Instead of crashing, let's try to reprocess the data
+      if (this.rawMafData.length > 0) {
+        // console.log('🔄 Attempting to reprocess data before rendering...');
+        try {
+          this.reprocessData();
+          // console.log('✅ Data reprocessed successfully');
+        } catch (error) {
+          console.error('❌ Failed to reprocess data:', error);
+          throw new Error(`Failed to process MAF data for rendering: ${error instanceof Error ? error.message : String(error)}`);
+        }
+      } else {
+        throw new Error('No MAF data available for rendering. Load MAF data first.');
+      }
     }
+    
+    // console.log('✅ About to call renderer.render()');
     this.renderer.render();
+    // console.log('✅ Renderer.render() completed successfully');
   }
 
   update(config?: Partial<OncoprintConfig>): void {
@@ -361,10 +399,26 @@ export class OncoprintVisualizer extends EventEmitter {
       throw new Error('No MAF data available for reprocessing');
     }
 
+    // console.log('=== OncoprintVisualizer.reprocessData ===');
+    // console.log('Raw MAF data length:', this.rawMafData.length);
+    // console.log('Raw MAF data sample:', this.rawMafData.slice(0, 2));
+
     const filteredData = this.applyDataFilters(this.rawMafData);
+    // console.log('Filtered data length:', filteredData.length);
+    
     const metadataToUse = this.rawMetadataData.length > 0 ? this.rawMetadataData : undefined;
+    // console.log('Metadata to use:', metadataToUse ? metadataToUse.length : 'none');
+    
     // Pass cohort information for percentage calculation and missing sample handling
-    this.processedData = DataProcessor.processData(filteredData, metadataToUse, this.cohortInfo);
+    try {
+      // console.log('Calling DataProcessor.processData...');
+      this.processedData = DataProcessor.processData(filteredData, metadataToUse, this.cohortInfo);
+      // console.log('DataProcessor.processData completed successfully');
+      // console.log('Processed data:', this.processedData);
+    } catch (error) {
+      console.error('Error in DataProcessor.processData:', error);
+      throw error;
+    }
     
     // Apply split grouping if configured
     if (this.config.splitBy?.field) {
@@ -377,7 +431,9 @@ export class OncoprintVisualizer extends EventEmitter {
       );
     }
     
+    // console.log('Setting processed data to renderer...');
     this.renderer.setData(this.processedData);
+    // console.log('=== reprocessData completed ===');
   }
 
   private reconstructMafData(): MafData[] {

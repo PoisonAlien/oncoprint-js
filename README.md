@@ -8,8 +8,6 @@
 
 **A comprehensive JavaScript/TypeScript library for creating interactive oncoprint visualizations from MAF files and metadata.**
 
-[Live Demo](https://poisonalien.github.io/oncoprint-js) • [Documentation](https://github.com/poisonalien/oncoprint-js/wiki) • [Examples](./examples)
-
 </div>
 
 ## Features
@@ -428,39 +426,6 @@ npm run dev
 # Run examples server
 npm run examples
 ```
-
-### Project Structure
-
-```
-oncoprint-js/
-├── src/                    # Source code
-│   ├── components/         # React components
-│   ├── core/              # Core visualization logic
-│   ├── parsers/           # Data parsers (MAF, metadata)
-│   ├── renderers/         # D3.js rendering engine
-│   ├── types/             # TypeScript type definitions
-│   └── utils/             # Utility functions
-├── examples/              # Usage examples
-├── dist/                  # Built library (generated)
-├── CHANGELOG.md           # Version history
-└── CLAUDE.md             # AI development guide
-```
-
-## Contributing
-
-We welcome contributions! Please read our [contributing guidelines](CONTRIBUTING.md) before submitting a PR.
-
-### Development Workflow
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/amazing-feature`
-3. Make your changes
-4. Run tests: `npm test`
-5. Run type checking: `npm run typecheck`
-6. Run linting: `npm run lint`
-7. Commit your changes: `git commit -m 'Add amazing feature'`
-8. Push to the branch: `git push origin feature/amazing-feature`
-9. Open a Pull Request
 
 ### Reporting Issues
 

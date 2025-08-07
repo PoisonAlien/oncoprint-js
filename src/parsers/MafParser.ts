@@ -31,7 +31,7 @@ export class MafParser {
     for (let i = 1; i < lines.length; i++) {
       const values = lines[i].split(delimiter);
       if (values.length !== headers.length) {
-        console.warn(`Line ${i + 1} has ${values.length} columns but expected ${headers.length}`);
+        // console.warn(`Line ${i + 1} has ${values.length} columns but expected ${headers.length}`);
         continue;
       }
 
@@ -138,7 +138,7 @@ export class MafParser {
       }
     });
 
-    console.log(`Parsed ${data.length} mutations across ${genes.size} genes and ${samples.size} samples`);
+    // console.log(`Parsed ${data.length} mutations across ${genes.size} genes and ${samples.size} samples`);
 
     return {
       isValid: errors.length === 0,

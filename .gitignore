@@ -70,4 +70,4 @@ junit.xml
 .yarn-integrity
 
 # Local development
-debug_*.js
+debug_*.jstesting/
