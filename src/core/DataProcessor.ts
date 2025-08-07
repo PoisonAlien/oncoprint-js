@@ -7,7 +7,7 @@ import {
   CohortInfo,
   SampleGroup
 } from '../types';
-import { MetadataParser, FieldTypeMap } from '../parsers';
+import { MetadataParser } from '../parsers';
 
 export class DataProcessor {
   static processData(maf: MafData[], metadata?: MetadataRow[], cohortInfo?: CohortInfo): ProcessedData {
@@ -433,11 +433,12 @@ export class DataProcessor {
         }
         return samples;
       case 'oncoprint':
-      default:
+      default: {
         // Get the most frequently mutated genes for this group for clustering
         const topGenes = geneOrder || this.sortGenesByFrequency(groupData, true, Math.min(25, data.genes.length));
         // Apply oncoprint clustering within this group
         return this.sortSamplesForOncoprint(groupData, topGenes);
+      }
     }
   }
 
