@@ -1,7 +1,7 @@
 // Jest setup file
-const { TextEncoder, TextDecoder } = require('util');
-global.TextEncoder = TextEncoder;
-global.TextDecoder = TextDecoder;
+import { TextEncoder, TextDecoder } from 'util';
+global.TextEncoder = TextEncoder as any;
+global.TextDecoder = TextDecoder as any;
 
 // Mock DOM methods that might not be available in test environment
 Object.defineProperty(window, 'matchMedia', {
