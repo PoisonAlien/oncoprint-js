@@ -653,11 +653,12 @@ class DataProcessor {
                 }
                 return samples;
             case 'oncoprint':
-            default:
+            default: {
                 // Get the most frequently mutated genes for this group for clustering
                 const topGenes = geneOrder || this.sortGenesByFrequency(groupData, true, Math.min(25, data.genes.length));
                 // Apply oncoprint clustering within this group
                 return this.sortSamplesForOncoprint(groupData, topGenes);
+            }
         }
     }
     static getCoOccurrenceMatrix(data) {
@@ -1345,7 +1346,7 @@ class OncoprintRenderer extends EventEmitter {
             .attr('class', 'metadata-tracks')
             .attr('transform', `translate(${this.dimensions.geneLabelWidth + this.dimensions.marginLeft}, ${this.dimensions.marginTop})`);
         let currentY = 0;
-        activeTracks.forEach((trackConfig, trackIndex) => {
+        activeTracks.forEach((trackConfig) => {
             if (!this.data.metadata.fields.includes(trackConfig.field))
                 return;
             const trackHeight = trackConfig.height || this.dimensions.metadataTrackHeight;
@@ -1586,7 +1587,7 @@ class OncoprintRenderer extends EventEmitter {
             .text('Mutation Types');
         // Render legend items horizontally
         let currentX = 0;
-        legend.forEach((item, index) => {
+        legend.forEach((item) => {
             const itemGroup = legendGroup.append('g')
                 .attr('transform', `translate(${currentX}, 25)`);
             itemGroup.append('rect')
@@ -1622,7 +1623,7 @@ class OncoprintRenderer extends EventEmitter {
             return;
         let currentX = 0;
         const trackSpacing = 200; // Horizontal spacing between tracks
-        activeTracks.forEach((trackConfig, trackIndex) => {
+        activeTracks.forEach((trackConfig) => {
             const field = trackConfig.field;
             if (!this.data.metadata.fields.includes(field))
                 return;
@@ -1663,7 +1664,7 @@ class OncoprintRenderer extends EventEmitter {
         let currentX = 0;
         let currentY = 0;
         let maxUsedWidth = 0;
-        values.forEach((value, index) => {
+        values.forEach((value) => {
             const color = colorScale(value);
             const itemGroup = parentGroup.append('g')
                 .attr('transform', `translate(${startX + currentX}, ${y + currentY})`);
@@ -1748,27 +1749,27 @@ class OncoprintRenderer extends EventEmitter {
             return;
         // Cell interactions
         this.svg.selectAll('.oncoprint-matrix rect')
-            .on('click', (event, d) => {
+            .on('click', (event) => {
             const element = event.target;
             const gene = element.getAttribute('data-gene');
             const sample = element.getAttribute('data-sample');
             const variant = element.getAttribute('data-variant');
             this.emit('cellClick', { gene, sample, variant });
         })
-            .on('mouseenter', (event, d) => {
+            .on('mouseenter', () => {
             if (!this.config.tooltips)
                 return;
             // Tooltip implementation would go here
         });
         // Gene label interactions
         this.svg.selectAll('.gene-labels text')
-            .on('click', (event, d) => {
+            .on('click', (event) => {
             const gene = event.target.textContent;
             this.emit('geneClick', { gene });
         });
         // Sample label interactions
         this.svg.selectAll('.sample-labels text')
-            .on('click', (event, d) => {
+            .on('click', (event) => {
             const sample = event.target.textContent;
             this.emit('sampleClick', { sample });
         });
@@ -1789,10 +1790,11 @@ class OncoprintRenderer extends EventEmitter {
             case 'frequency':
                 this.geneOrder = DataProcessor.sortGenesByFrequency(this.data, true, 25).reverse();
                 break;
-            case 'alphabetical':
+            case 'alphabetical': {
                 const limitedGenes = DataProcessor.sortGenesByFrequency(this.data, true, 25);
                 this.geneOrder = limitedGenes.sort();
                 break;
+            }
             case 'custom':
                 this.geneOrder = this.config.customGeneOrder?.filter(g => this.data.genes.includes(g)) ||
                     DataProcessor.sortGenesByFrequency(this.data, true, 25).reverse();
@@ -1832,8 +1834,8 @@ class OncoprintRenderer extends EventEmitter {
     }
     calculateDimensions() {
         const containerRect = this.container.getBoundingClientRect();
-        let availableWidth = containerRect.width || 1000;
-        let availableHeight = containerRect.height || 700;
+        const availableWidth = containerRect.width || 1000;
+        const availableHeight = containerRect.height || 700;
         // If we have data, calculate what dimensions we need and scale to fit if necessary
         if (this.data && this.geneOrder.length > 0 && this.sampleOrder.length > 0) {
             let cellWidth = this.config.cellWidth || 10;
