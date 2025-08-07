@@ -4,11 +4,11 @@
 
 [![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-%230074c1.svg)](http://www.typescriptlang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Build Status](https://img.shields.io/github/workflow/status/poisonalien/oncoprint-js/CI)](https://github.com/poisonalien/oncoprint-js/actions)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/poisonalien/oncoprint-js/ci.yml?branch=main)](https://github.com/poisonalien/oncoprint-js/actions)
 
 **A comprehensive JavaScript/TypeScript library for creating interactive oncoprint visualizations from MAF files and metadata.**
 
-[Live Demo](https://poisonalien.github.io/oncoprint-js) • [Documentation](https://github.com/poisonalien/oncoprint-js/wiki) • [Examples](./examples) • [API Reference](./API_REFERENCE.md)
+[Live Demo](https://poisonalien.github.io/oncoprint-js) • [Documentation](https://github.com/poisonalien/oncoprint-js/wiki) • [Examples](./examples)
 
 </div>
 
@@ -384,7 +384,6 @@ Oncoprint.js: A JavaScript library for interactive oncology data visualization
 
 - **[Live Demo](https://poisonalien.github.io/oncoprint-js/)** - Try the interactive configurator
 - **[Examples](./examples)** - Complete usage examples
-- **[API Reference](./API_REFERENCE.md)** - Detailed API documentation
 
 ## Live Demo
 
@@ -443,7 +442,6 @@ oncoprint-js/
 │   └── utils/             # Utility functions
 ├── examples/              # Usage examples
 ├── dist/                  # Built library (generated)
-├── API_REFERENCE.md       # API documentation
 ├── CHANGELOG.md           # Version history
 └── CLAUDE.md             # AI development guide
 ```
