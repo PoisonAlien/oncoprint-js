@@ -1,6 +1,6 @@
 {
   "name": "oncoprint-js",
-  "version": "1.0.0",
+  "version": "1.0.0-beta.1",
   "type": "module",
   "description": "A comprehensive JavaScript library for creating interactive oncoprint visualizations from MAF files and metadata",
   "main": "dist/index.js",
