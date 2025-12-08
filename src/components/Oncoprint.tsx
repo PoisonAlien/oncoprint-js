@@ -155,29 +155,37 @@ export const OncoprintSimple: React.FC<OncoprintProps> = ({
     }
   }, [mafFile, onError, onRenderComplete]);
 
-  // Load MAF data directly
+  // Load MAF and metadata data with proper sequencing
   useEffect(() => {
-    // console.log('=== OncoprintSimple useEffect for mafData ===');
-    // console.log('mafData:', mafData);
-    // console.log('mafData length:', mafData ? mafData.length : 'null/undefined');
-    // console.log('visualizerRef.current:', !!visualizerRef.current);
-    
-    if (mafData && visualizerRef.current) {
-      // console.log('Calling visualizerRef.current.loadMafData...');
-      visualizerRef.current.loadMafData(mafData)
-        .then(() => {
-          // console.log('loadMafData promise resolved, calling render...');
-          visualizerRef.current?.render();
+    const loadData = async () => {
+      if (!visualizerRef.current) {
+        return;
+      }
+
+      try {
+        // Step 1: Load MAF data if provided
+        if (mafData && mafData.length > 0) {
+          await visualizerRef.current.loadMafData(mafData);
+        }
+
+        // Step 2: Load metadata if provided (only after MAF data is loaded)
+        if (metadataData && metadataData.length > 0) {
+          await visualizerRef.current.loadMetadataData(metadataData);
+        }
+
+        // Step 3: Render only once after all data is loaded
+        if (mafData && mafData.length > 0) {
+          visualizerRef.current.render();
           onRenderComplete?.();
-        })
-        .catch((error) => {
-          console.error('loadMafData promise rejected:', error);
-          onError?.(error);
-        });
-    } else {
-      // console.log('Skipping loadMafData - missing mafData or visualizer');
-    }
-  }, [mafData, onError, onRenderComplete]);
+        }
+      } catch (error) {
+        console.error('Error loading data:', error);
+        onError?.(error instanceof Error ? error : new Error(String(error)));
+      }
+    };
+
+    loadData();
+  }, [mafData, metadataData, onError, onRenderComplete]);
 
   // Load metadata from file
   useEffect(() => {
@@ -197,20 +205,6 @@ export const OncoprintSimple: React.FC<OncoprintProps> = ({
         });
     }
   }, [metadataFile, onError, onRenderComplete]);
-
-  // Load metadata directly
-  useEffect(() => {
-    if (metadataData && visualizerRef.current) {
-      visualizerRef.current.loadMetadataData(metadataData)
-        .then(() => {
-          visualizerRef.current?.render();
-          onRenderComplete?.();
-        })
-        .catch((error) => {
-          onError?.(error);
-        });
-    }
-  }, [metadataData, onError, onRenderComplete]);
 
   return (
     <div
@@ -326,29 +320,37 @@ export const Oncoprint = forwardRef<OncoprintRef, OncoprintProps>(({
     }
   }, [mafFile, onError, onRenderComplete]);
 
-  // Load MAF data directly
+  // Load MAF and metadata data with proper sequencing
   useEffect(() => {
-    // console.log('=== React Oncoprint useEffect for mafData ===');
-    // console.log('mafData:', mafData);
-    // console.log('mafData length:', mafData ? mafData.length : 'null/undefined');
-    // console.log('visualizerRef.current:', !!visualizerRef.current);
-    
-    if (mafData && visualizerRef.current) {
-      // console.log('Calling visualizerRef.current.loadMafData...');
-      visualizerRef.current.loadMafData(mafData)
-        .then(() => {
-          // console.log('loadMafData promise resolved, calling render...');
-          visualizerRef.current?.render();
+    const loadData = async () => {
+      if (!visualizerRef.current) {
+        return;
+      }
+
+      try {
+        // Step 1: Load MAF data if provided
+        if (mafData && mafData.length > 0) {
+          await visualizerRef.current.loadMafData(mafData);
+        }
+
+        // Step 2: Load metadata if provided (only after MAF data is loaded)
+        if (metadataData && metadataData.length > 0) {
+          await visualizerRef.current.loadMetadataData(metadataData);
+        }
+
+        // Step 3: Render only once after all data is loaded
+        if (mafData && mafData.length > 0) {
+          visualizerRef.current.render();
           onRenderComplete?.();
-        })
-        .catch((error) => {
-          console.error('loadMafData promise rejected:', error);
-          onError?.(error);
-        });
-    } else {
-      // console.log('Skipping loadMafData - missing mafData or visualizer');
-    }
-  }, [mafData, onError, onRenderComplete]);
+        }
+      } catch (error) {
+        console.error('Error loading data:', error);
+        onError?.(error instanceof Error ? error : new Error(String(error)));
+      }
+    };
+
+    loadData();
+  }, [mafData, metadataData, onError, onRenderComplete]);
 
   // Load metadata from file
   useEffect(() => {
@@ -368,20 +370,6 @@ export const Oncoprint = forwardRef<OncoprintRef, OncoprintProps>(({
         });
     }
   }, [metadataFile, onError, onRenderComplete]);
-
-  // Load metadata directly
-  useEffect(() => {
-    if (metadataData && visualizerRef.current) {
-      visualizerRef.current.loadMetadataData(metadataData)
-        .then(() => {
-          visualizerRef.current?.render();
-          onRenderComplete?.();
-        })
-        .catch((error) => {
-          onError?.(error);
-        });
-    }
-  }, [metadataData, onError, onRenderComplete]);
 
   // Expose methods through ref
   useImperativeHandle(ref, () => ({
