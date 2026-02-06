@@ -5,9 +5,9 @@ yarn-debug.log*
 yarn-error.log*
 
 # Build outputs
-dist/
 build/
 *.tgz
+# Note: dist/ is NOT ignored - we commit built files for GitHub installs
 
 # Environment variables
 .env

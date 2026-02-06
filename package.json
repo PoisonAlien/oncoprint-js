@@ -33,7 +33,7 @@
     "lint": "eslint src --ext .ts,.tsx",
     "lint:fix": "eslint src --ext .ts,.tsx --fix",
     "clean": "rm -rf dist",
-    "prepare": "npm run clean && npm run build",
+    "prebuild": "npm run clean",
     "prepublishOnly": "npm run test && npm run typecheck && npm run build",
     "examples": "cd examples && python3 serve.py",
     "release": "npm version patch && npm publish"
